@@ -6,4 +6,4 @@ pipelines:
         caches:
           - gradle
         script:
-          - bash ./gradlew build
+          - bash cd android && ./gradlew build
