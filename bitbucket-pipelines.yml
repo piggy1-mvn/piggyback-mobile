@@ -6,4 +6,4 @@ pipelines:
         caches:
           - gradle
         script:
-          - chmod +x gradlew && cd android && ./gradlew build
+          - cd android && chmod +x gradlew && ./gradlew build
