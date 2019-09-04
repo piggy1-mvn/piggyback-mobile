@@ -1,16 +1,9 @@
 import React, { Component } from 'react';
-import {
-  Button,
-  PermissionsAndroid,
-  Platform,
-  StyleSheet,
-  Text,
-  ToastAndroid,
-  View
-} from 'react-native';
+import { Button,PermissionsAndroid,Platform,StyleSheet,Text,ToastAndroid,View} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
+import styles from '../styles/style.js'
 
-export default class App extends Component<{}> {
+export default class locationApp extends Component<{}> {
   watchId = null;
 
   state = {
@@ -46,6 +39,7 @@ export default class App extends Component<{}> {
     return false;
   }
 
+
   getLocation = async () => {
     const hasLocationPermission = await this.hasLocationPermission();
 
@@ -68,21 +62,21 @@ export default class App extends Component<{}> {
 
   getLocationUpdates = async () => {
     const hasLocationPermission = await this.hasLocationPermission();
-
     if (!hasLocationPermission) return;
-
     this.setState({ updatesEnabled: true }, () => {
       this.watchId = Geolocation.watchPosition(
         (position) => {
           this.setState({ location: position });
-          console.log(position);
+          console.log("current position ",this.state.location);
+          console.log("Hi");
+          console.log("watchid ", this.watchId);
 
         },
         (error) => {
           this.setState({ location: error });
           console.log(error);
         },
-        { enableHighAccuracy: true, distanceFilter: 0, interval: 5000, fastestInterval: 2000 }
+        { enableHighAccuracy: true, distanceFilter: 0, interval: 5000, fastestInterval: 5000 }
       );
     });
   }
@@ -91,13 +85,45 @@ export default class App extends Component<{}> {
       if (this.watchId !== null) {
           Geolocation.clearWatch(this.watchId);
           this.setState({ updatesEnabled: false })
+          console.log("cleared");
       }
+  }
+
+  handlePress = async () => {
+    console.log("in fetch call")
+    fetch('http://localhost:8080/location',{
+           method: 'POST',
+           headers: {
+              Accept: 'application/json',
+                      'Content-Type': 'application/json',
+              },
+           body: JSON.stringify({
+              userid: "simmer"
+              latitude:this.state.location.coords.latitude,
+              longitude:this.state.location.coords.longitude,
+              gpsAccurac:this.state.location.coords.accuracy,
+              deviceId:"23ADEVIEW",
+              })
+          }).then(response => {
+                  console.log("response from server ",response)
+              })
+              .catch(error =>{
+                  console.log(error)
+              })
+     }
+
+
+  componentWillUpdate(newProps,newState){
+   console.log("called before the render method");
+   console.log("NewProps: ",newProps);
+   console.log("NewState: ",newState);
   }
 
   render() {
     const { loading, location, updatesEnabled } = this.state;
      return (
       <View style={styles.container}>
+
         <Button title='Get Location' onPress={this.getLocation} disabled={loading || updatesEnabled} />
         <View style={styles.buttons}>
             <Button title='Start Observing' onPress={this.getLocationUpdates} disabled={updatesEnabled} />
@@ -110,28 +136,17 @@ export default class App extends Component<{}> {
       </View>
     );
   }
+
+
+  componentDidUpdate(prevProps, prevState){
+     console.log("i was caledde");
+     if (
+       prevState.location !== this.state.location
+       ) {
+          console.log("location changed");
+          this.handlePress();
+     }
+   }
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
-    paddingHorizontal: 12
-  },
-  result: {
-      borderWidth: 1,
-      borderColor: '#666',
-      width: '100%',
-      paddingHorizontal: 16
-  },
-  buttons: {
-      flexDirection: 'row',
-      justifyContent: 'space-around',
-      alignItems: 'center',
-      marginVertical: 12,
-      width: '100%'
-  }
-});
 
