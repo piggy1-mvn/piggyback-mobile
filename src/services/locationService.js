@@ -98,7 +98,7 @@ export default class locationApp extends Component<{}> {
                       'Content-Type': 'application/json',
               },
            body: JSON.stringify({
-              userid: "simmer"
+              userid: "simmer",
               latitude:this.state.location.coords.latitude,
               longitude:this.state.location.coords.longitude,
               gpsAccurac:this.state.location.coords.accuracy,
