@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">piggyback_mobile</string>
+    <string name="facebook_app_id">460445121471532</string>
+    <string name="fb_login_protocol_scheme">fb460445121471532</string>
 </resources>

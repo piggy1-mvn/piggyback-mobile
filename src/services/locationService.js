@@ -76,7 +76,7 @@ export default class locationApp extends Component<{}> {
           this.setState({ location: error });
           console.log(error);
         },
-        { enableHighAccuracy: true, distanceFilter: 0, interval: 5000, fastestInterval: 5000 }
+        { enableHighAccuracy: true, distanceFilter: 0, interval: 60000, fastestInterval: 60000 }
       );
     });
   }
@@ -91,24 +91,24 @@ export default class locationApp extends Component<{}> {
 
   handlePress = async () => {
     console.log("in fetch call")
-    fetch('http://localhost:8080/location',{
+    fetch('http://192.168.43.102:8080/location',{
            method: 'POST',
            headers: {
-              Accept: 'application/json',
-                      'Content-Type': 'application/json',
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
               },
            body: JSON.stringify({
-              userid: "simmer",
-              latitude:this.state.location.coords.latitude,
-              longitude:this.state.location.coords.longitude,
-              gpsAccurac:this.state.location.coords.accuracy,
-              deviceId:"23ADEVIEW",
+             "userId": "123",
+             "latitude":this.state.location.coords.latitude,
+             "longitude":this.state.location.coords.longitude,
+             "gpsAccuracy":this.state.location.coords.accuracy,
+             "deviceId":"23ADEVIEW"
               })
           }).then(response => {
                   console.log("response from server ",response)
               })
               .catch(error =>{
-                  console.log(error)
+                  console.log("response failed to server",error)
               })
      }
 
