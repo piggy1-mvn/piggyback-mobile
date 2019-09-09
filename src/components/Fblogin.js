@@ -4,7 +4,7 @@ import { LoginButton, AccessToken, LoginManager } from 'react-native-fbsdk';
 import newUser from './user.js';
 
 
-export default class fbLogin extends Component {
+export default class Fblogin extends Component {
 
 initUser=(token)=>{
     console.log("am inside the inituser");
