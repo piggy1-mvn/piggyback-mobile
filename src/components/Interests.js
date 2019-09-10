@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
-import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
+import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import newUser from './user.js';
 import LocationTracker from '../services/LocationTracker.js';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
 
-export default class RegisterPage extends Component{
+export default class Interests extends Component{
      constructor(props){
             super(props);
             console.log(this.props);
@@ -17,25 +17,11 @@ export default class RegisterPage extends Component{
        <View style = {styles.container}>
           <Text style = {styles.text}>Welcome to Piggy</Text>
           <Button
-             title="App requests Location tracking"
-             onPress={() => this.props.navigation.navigate('LocationTracker')}
-          />
-          <Button
-             title="Set your Interests"
-             onPress={() => this.props.navigation.navigate('Interests')}
-          />
-          <Button
-            title = "Logout from Piggy"
-            onPress = {this.logout}
-          />
+             title="Choose your interests"
+           />
        </View>
        );
 }
-
-  logout = async () => {
-    await AsyncStorage.clear();
-    this.props.navigation.navigate('Login');
-  }
 }
 
 const styles = StyleSheet.create({

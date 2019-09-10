@@ -1,12 +1,36 @@
 import React, { Component } from 'react';
-import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, AsyncStorage } from 'react-native';
 import { LoginButton, AccessToken, LoginManager } from 'react-native-fbsdk';
 import newUser from './user.js';
 import HomePage from './HomePage';
 import RegisterPage from './RegisterPage';
 import Fblogin from './Fblogin.js'
 
+const userInfo = {email_id: 'elizabethjohnjk333@gmail.com', password : 'sarah'}
+
 export default class LoginPage extends Component{
+
+    constructor(props){
+       super(props);
+       this.state = {
+          email_id : '',
+          password : ''
+          }
+       }
+
+    checkLogin = async () => {
+       console.log("am inside checklogin");
+       if(userInfo.email_id === this.state.email_id && userInfo.password === this.state.password){
+          alert('You have successfully logged in  to PiggyBack !!');
+          await AsyncStorage.setItem('isLoggedIn', '1');
+          this.props.navigation.navigate('Home');
+          } else {
+           alert('Email id or password entered is wrong !!');
+          }
+
+    }
+
+
     render() {
       return (
         <View style = {styles.container}>
@@ -14,6 +38,7 @@ export default class LoginPage extends Component{
           <TextInput style = {styles.input}
             placeholder = "email id"
             returnKeyType = "next"
+            onChangeText = { (text) => this.setState({email_id : text})}
             onSubmitEditing = {()=> this.passwordInput.focus()}
             keyboardType = "email-address"
             autoCapitalize = "none"
@@ -21,11 +46,12 @@ export default class LoginPage extends Component{
           />
           <TextInput style = {styles.input}
             placeholder = "password"
+            onChangeText = { (text) => this.setState({password : text})}
             returnKeyType = "go"
-            secureTextEntry = {false}
+            secureTextEntry = {true}
             ref = {(input) => this.passwordInput =input}
           />
-          <TouchableOpacity style = {styles.buttoncontainer} onPress = {()=> this.props.navigation.navigate('Home')}>
+          <TouchableOpacity style = {styles.buttoncontainer} onPress = {this.checkLogin}>
             <Text style ={styles.buttontext}>Login to Piggy</Text>
           </TouchableOpacity>
           <Button

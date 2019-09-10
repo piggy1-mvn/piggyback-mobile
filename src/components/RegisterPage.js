@@ -22,6 +22,7 @@ export default class RegisterPage extends Component{
 
     }
 
+
     onRegisterPressed = async () => {
       console.log("inside onregisterpressedd");
       try{
