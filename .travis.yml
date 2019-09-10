@@ -15,7 +15,8 @@ android:
     
 before_install:
   - echo y | sdkmanager "ndk-bundle"
-  - sudo apt install npm
+  - curl -sL https://deb.nodesource.com/setup_10.x | sude -E bash -
+  - sudo apt-get install -y nodejs
   - npm install
   - cd android
   - chmod +x gradlew
