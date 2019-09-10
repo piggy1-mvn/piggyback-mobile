@@ -16,3 +16,4 @@ android:
 before_install:
   - echo y | sdkmanager "ndk-bundle"
   - cd android
+  - chmod +x gradlew
