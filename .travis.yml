@@ -15,6 +15,7 @@ android:
     
 before_install:
   - echo y | sdkmanager "ndk-bundle"
+  - sudo apt install npm
   - npm install
   - cd android
   - chmod +x gradlew
