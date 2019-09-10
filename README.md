@@ -2,7 +2,7 @@
 1. install node.js
 2. install below react native libraries:
    npm install -g react-native-cli
-   npm install react-native-gelolocation
+   npm install react-native-geolocation-service
    npm install react-native-fbsdk
    npm install react-navigation-stack
    npm install  react-navigation
