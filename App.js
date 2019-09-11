@@ -1,8 +1,10 @@
-import React, { Component } from 'react';	import { Text, View } from 'react-native';
-export default class HelloWorldApp extends Component {	  render() {
-	    return (
-			<View>
-			<Text>Hello world from piggyIncentive</Text>
-	               </View>	    );
- }
+import React, { Component } from 'react';
+import AppContainer from './Navigator';
+
+export default class App extends Component {
+  render() {
+    return (
+        <AppContainer />
+    );
+  }
 }
