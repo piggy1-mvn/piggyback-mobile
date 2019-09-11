@@ -20,13 +20,40 @@ export default class LoginPage extends Component{
 
     checkLogin = async () => {
        console.log("am inside checklogin");
-       if(userInfo.email_id === this.state.email_id && userInfo.password === this.state.password){
-          alert('You have successfully logged in  to PiggyBack !!');
-          await AsyncStorage.setItem('isLoggedIn', '1');
-          this.props.navigation.navigate('Home');
-          } else {
-           alert('Email id or password entered is wrong !!');
-          }
+       await fetch('http://192.168.43.102:8083/user/login/',{
+               method: 'POST',
+               headers: {
+                        'Accept': 'application/json',
+                         'Content-Type': 'application/json',
+                         },
+               body: JSON.stringify({
+                     "email" : this.state.email_id,
+                     "user_password" : this.state.password
+                          })
+               }).then((response) => {
+                                 if (response.status >= 200 && response.status < 300) {
+                                    console.log("response from server ",response)
+                                    alert('You have successfully logged in  to PiggyBack !!');
+                                    AsyncStorage.setItem('isLoggedIn', '1');
+                                    this.props.navigation.navigate('Home');
+                                } else {
+                                   console.log("error from server", response)
+                                   throw new Error('Something went wrong');
+                                   alert("Something went wrong");
+                                 }
+                                })
+                                .catch(error =>{
+                                    console.log("response failed to server",error);
+                                    alert("Incorrect password or Email id");
+                                });
+
+       //if(userInfo.email_id === this.state.email_id && userInfo.password === this.state.password){
+         // alert('You have successfully logged in  to PiggyBack !!');
+          //await AsyncStorage.setItem('isLoggedIn', '1');
+          //this.props.navigation.navigate('Home');
+          //} else {
+           //alert('Email id or password entered is wrong !!');
+          //}
 
     }
 
@@ -60,7 +87,7 @@ export default class LoginPage extends Component{
              color = "#1abc9c"
              onPress = {() => this.props.navigation.navigate('Register')}
           />
-           <Fblogin />
+           <Fblogin navigation={this.props.navigation}/>
         </View>
        </View>
        );

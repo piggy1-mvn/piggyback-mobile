@@ -6,7 +6,8 @@ import LoginPage from './src/components/LoginPage.js'
 import RegisterPage from './src/components/RegisterPage.js';
 import HomePage from './src/components/HomePage.js';
 import LocationTracker from './src/services/LocationTracker.js';
-import Interests from './src/components/Interests.js'
+import Interests from './src/components/Interests.js';
+import Fblogin from './src/components/Fblogin.js';
 
 const AppNavigator = createStackNavigator ({
     Home : HomePage,
@@ -14,14 +15,17 @@ const AppNavigator = createStackNavigator ({
     Interests : Interests
      },
      {
-       //initialRouteName: 'Login'
+       //initialRouteName: 'Home'
        }
      );
 
 const LoginNavigator = createStackNavigator({
    Login : LoginPage,
    Register : RegisterPage
- }
+ },
+   {
+       initialRouteName: 'Login'
+    }
  );
 
 
@@ -32,6 +36,7 @@ class AuthLoadingScreen extends Component {
     }
 
     loadData = async() => {
+      console.log("am her in authloading screen component")
       const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
       this.props.navigation.navigate(isLoggedIn !== '1'? 'LoginNav' : 'AppN' )
     }
@@ -66,5 +71,4 @@ const AppswNavigator  = createSwitchNavigator({
 );
 
 const AppContainer = createAppContainer(AppswNavigator);
-
 export default AppContainer;

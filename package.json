@@ -8,6 +8,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-community/checkbox": "^0.2.0",
     "react": "16.8.6",
     "react-native": "0.60.5",
     "react-native-fbsdk": "^1.0.3",
