@@ -20,20 +20,11 @@ export default class RegisterPage extends Component{
        device_id : "ABC123",
        errors : []
      }
-
     }
-
 
     onRegisterPressed = async () => {
       console.log("inside onregisterpressedd");
       try{
-        console.log("hiii")
-        console.log(this.state.first_name)
-        console.log(this.state.last_name)
-        console.log(this.state.confirm_password)
-        console.log(this.state.mobile_number)
-       console.log(this.state.user_email)
-        console.log("23ADEVIEWJ")
         let response = await fetch('http://192.168.43.102:8083/user',{
                                     method: 'POST',
                                     headers: {
