@@ -7,20 +7,12 @@ import newUser from './user.js';
 export default class Fblogin extends Component {
 
 initUser=(token)=>{
-    console.log("am inside the inituser");
-    console.log("access token --> ", token);
-    console.log("access token 1 --> ", token.accessToken);
-    console.log('https://graph.facebook.com/v2.5/me?fields=email,name,first_name,friends&access_token=' + token);
     fetch('https://graph.facebook.com/v2.5/me?fields=email,name,first_name,last_name&access_token=' + token.accessToken)
       .then((response) => response.json())
       .then((response) => {
          newUser.first_name = response.first_name
          newUser.last_name = response.last_name
          newUser.email = response.email
-         //console.log("response --> ", response);
-         //console.log("email --> ",newUser.email);
-         //console.log("nsme -> ",response.name);
-         //console.log("firstname--> ",response.first_name);
       })
       .catch(() => {
           console.log('ERROR GETTING DATA FROM FACEBOOK')
