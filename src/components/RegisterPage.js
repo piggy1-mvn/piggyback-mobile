@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
 import newUser from './user.js';
 import HomePage from './HomePage.js';
+import LoginPage from './LoginPage.js';
 
 export default class RegisterPage extends Component{
     constructor(props){
@@ -46,13 +47,17 @@ export default class RegisterPage extends Component{
                                        "mobile_number" : this.state.mobile_number,
                                        "mobile_verified" : "true",
                                        "user_role" : "PIGGY_USER",
-                                       "user_email" : this.state.user_email,
+                                       "email" : this.state.user_email,
                                        "device_id":"23ADEVIEW"
                                        })
                                     })
-        let res = await response.text();
+        let res = await response.json();
         if (response.status >= 200 && response.status < 300) {
            console.log("response from server if --> ", res);
+           console.log("res email --> ", res.email);
+           console.log("res id --> ", res.id);
+           await AsyncStorage.setItem('user_email', res.email);
+           await AsyncStorage.setItem('user_id', res.id);
            this.props.navigation.navigate('Login');
         } else {
            console.log("in else block")
