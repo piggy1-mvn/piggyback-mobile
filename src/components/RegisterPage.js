@@ -20,7 +20,9 @@ export default class RegisterPage extends Component{
        device_id : "ABC123",
        errors : []
      }
+
     }
+
 
     onRegisterPressed = async () => {
       console.log("inside onregisterpressedd");
@@ -44,30 +46,15 @@ export default class RegisterPage extends Component{
                                     })
         let res = await response.json();
         if (response.status >= 200 && response.status < 300) {
-           console.log("response from server if --> ", res);
-           console.log("res email --> ", res.email);
-           console.log("res id --> ", res.id);
            await AsyncStorage.setItem('user_email', res.email);
            await AsyncStorage.setItem('user_id', res.id);
-           this.props.navigation.navigate('Login');
+           this.props.navigation.navigate('Home');
         } else {
-           console.log("in else block")
            let error = res;
            throw error;
-           console.log("error response --> ", error);
+
         }
       } catch(errors) {
-         console.log("inside catch")
-         //let formErrors = JSON.parse(errors);
-         //let errorsArray = [];
-         //for(var key in formErrors){
-           // if(formErrors[key].length > 1) {
-             //  formErrors[key].map(error => errorsArray.push(`${key} ${error}`));
-            //} else {
-              // errorsArray.push(`${key} ${formErrors[key]}`)
-            //}
-         //}
-         console.log("error from server-->> ", errors)
         this.setState({errors: errors});
       }
     }

@@ -17,17 +17,14 @@ export default class RegisterPage extends Component{
        <View style = {styles.container}>
           <Text style = {styles.text}>Welcome to Piggy</Text>
           <Button
-             title="App requests Location tracking"
-             onPress={() => this.props.navigation.navigate('LocationTracker')}
-          />
-          <Button
-             title="Set your Interests"
+             title="Set my Interests"
              onPress={() => this.props.navigation.navigate('Interests')}
           />
           <Button
             title = "Logout from Piggy"
             onPress = {this.logout}
           />
+          <LocationTracker />
        </View>
        );
 }

@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Button,PermissionsAndroid,Platform,StyleSheet,Text,ToastAndroid,View} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import styles from '../styles/style.js';
-import Interests from '../components/Interests.js';
 
 export default class LocationTracker extends Component<{}> {
   watchId = null;
@@ -12,6 +11,8 @@ export default class LocationTracker extends Component<{}> {
     updatesEnabled: false,
     location: {}
   };
+
+  let userid = AsyncStorage
 
   hasLocationPermission = async () => {
     if (Platform.OS === 'ios' ||
@@ -69,10 +70,7 @@ export default class LocationTracker extends Component<{}> {
         (position) => {
           this.setState({ location: position });
           console.log("current position ",this.state.location);
-          console.log("Hi");
-          console.log("watchid ", this.watchId);
-
-        },
+         },
         (error) => {
           this.setState({ location: error });
           console.log(error);
@@ -116,13 +114,13 @@ export default class LocationTracker extends Component<{}> {
 
 
   componentWillUpdate(newProps,newState){
-   console.log("called before the render method");
    console.log("NewProps: ",newProps);
    console.log("NewState: ",newState);
   }
 
   componentWillUnmount(){
      this.removeLocationUpdates();
+     console.log("location updates stopped");
     }
 
   render() {
@@ -131,7 +129,6 @@ export default class LocationTracker extends Component<{}> {
       <View style={styles.container}>
         <View style={styles.buttons}>
             <Button title='Allow Location Tracking' onPress={this.getLocationUpdates} />
-            <Button title='Goto Preferences'  onPress={() => this.props.navigation.navigate('Interests')} />
         </View>
       </View>
     );
