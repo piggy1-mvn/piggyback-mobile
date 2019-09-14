@@ -47,15 +47,7 @@ export default class LoginPage extends Component{
                                     alert("Incorrect password or Email id");
                                 });
 
-       //if(userInfo.email_id === this.state.email_id && userInfo.password === this.state.password){
-         // alert('You have successfully logged in  to PiggyBack !!');
-          //await AsyncStorage.setItem('isLoggedIn', '1');
-          //this.props.navigation.navigate('Home');
-          //} else {
-           //alert('Email id or password entered is wrong !!');
-          //}
-
-    }
+       }
 
 
     render() {
@@ -125,4 +117,3 @@ const styles = StyleSheet.create({
      fontSize : 20
      }
 })
-

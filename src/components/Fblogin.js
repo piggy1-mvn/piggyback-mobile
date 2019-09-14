@@ -10,9 +10,7 @@ export default class Fblogin extends Component {
              super(props);
              console.log(this.props);
              this.state = {
-               email : '',
-               first_name : '',
-               last_name : '',
+               fbData :{},
                mobile_number : '',
                getphone : false
 
@@ -28,16 +26,15 @@ export default class Fblogin extends Component {
          let data = await  AccessToken.getCurrentAccessToken();
 
          let accessToken = data.accessToken
-         alert("accesstoken from server " + accessToken.toString())
+         //alert("accesstoken from server " + accessToken.toString())
 
          const responseInfoCallback = (error,result) => {
                           if (error) {
                                alert('Error fetching data ' + error.toString());
                              } else {
                               alert('Success fetching data: ' + result.toString());
-                              this.setState({email : result.email , first_name : result.first_name, last_name : result.last_name, getphone : true });
-
-                                  }
+                              this.setState({fbData : result , getphone : true})
+                               }
                                 }
 
          const infoRequest = new GraphRequest(
@@ -91,8 +88,7 @@ export default class Fblogin extends Component {
 
   render() {
       return (
-      <View>
-        <View>
+         <View style={{marginTop:20}}>
           {this.state.getphone == true ?
              [
                <TextInput
@@ -102,18 +98,17 @@ export default class Fblogin extends Component {
              ]
              :
               [
-                <Button title="Login with FaceBook" onPress={this.facebookLogin} />,
-                 <Button title="Logout" onPress={this.logout} />
+                <Button title="Login with FaceBook" onPress={this.facebookLogin} />
+
                ]
                }
 
-        </View>
-
-      </View>
+       </View>
     );
   }
 
   sendUpdate = async () => {
+          const {fbData} = this.state;
           try{
               let response = await fetch('http://192.168.43.102:8083/user',{
                                           method: 'POST',
@@ -122,21 +117,21 @@ export default class Fblogin extends Component {
                                              'Content-Type': 'application/json',
                                                     },
                                           body: JSON.stringify({
-                                              "first_name" : this.state.first_name,
-                                             "last_name" : this.state.last_name,
+                                             "first_name" : fbData.first_name,
+                                             "last_name" : fbData.last_name,
                                              "mobile_number" : this.state.mobile_number,
                                              "mobile_verified": "true",
                                              "user_type": "USER_TYPE_FB",
                                              "user_role": "PIGGY_USER",
-                                             "email" : this.state.user_email,
+                                             "email" : fbData.email,
                                              "device_id":"23ADEVIEW"
                                              })
                                           })
               let res = await response.json();
               if (response.status >= 200 && response.status < 300) {
-                 await AsyncStorage.setItem('user_id', res.id);
+                 await AsyncStorage.setItem('user_id', JSON.stringify(res.id));
                  await AsyncStorage.setItem('isLoggedIn', '1');
-                 Alert("Redirecting to Home Page");
+                 alert("Redirecting to Home Page");
                  this.props.navigation.navigate('Home');
               } else {
                  let error = res;

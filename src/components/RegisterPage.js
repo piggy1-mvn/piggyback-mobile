@@ -26,6 +26,11 @@ export default class RegisterPage extends Component{
 
     onRegisterPressed = async () => {
       console.log("inside onregisterpressedd");
+      console.log("first_name", this.state.first_name);
+      console.log("last_name", this.state.last_name);
+      console.log("pass ", this.state.confirm_password);
+      console.log("email", this.state.user_email)
+      console.log("mobile_number", this.state.mobile_number)
       try{
         let response = await fetch('http://192.168.43.102:8083/user',{
                                     method: 'POST',
@@ -46,13 +51,12 @@ export default class RegisterPage extends Component{
                                     })
         let res = await response.json();
         if (response.status >= 200 && response.status < 300) {
-           await AsyncStorage.setItem('user_email', res.email);
-           await AsyncStorage.setItem('user_id', res.id);
-           this.props.navigation.navigate('Home');
+           await AsyncStorage.setItem('user_email', JSON.stringify(res.email));
+           await AsyncStorage.setItem('user_id', JSON.stringify(res.id));
+           this.props.navigation.navigate('Login');
         } else {
            let error = res;
            throw error;
-
         }
       } catch(errors) {
         this.setState({errors: errors});
@@ -116,7 +120,6 @@ export default class RegisterPage extends Component{
             <Text style ={styles.buttontext}>Sign Me up!!</Text>
           </TouchableOpacity>
 
-          <Errors errors= {this.state.errors}/>
 
          </View>
        </View>

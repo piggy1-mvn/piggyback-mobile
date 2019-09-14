@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
+import { AccessToken, LoginManager } from 'react-native-fbsdk';
 import newUser from './user.js';
 import LocationTracker from '../services/LocationTracker.js';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
@@ -31,6 +32,9 @@ export default class RegisterPage extends Component{
 
   logout = async () => {
     await AsyncStorage.clear();
+    if (AccessToken.getCurrentAccessToken){
+                    LoginManager.logOut();
+                    }
     this.props.navigation.navigate('Login');
   }
 }
