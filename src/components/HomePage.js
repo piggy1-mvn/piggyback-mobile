@@ -31,7 +31,9 @@ export default class RegisterPage extends Component{
 }
 
   logout = async () => {
-    await AsyncStorage.clear();
+    //await AsyncStorage.clear();
+    await AsyncStorage.removeItem('tokenval');
+    await AsyncStorage.removeItem('isLoggedIn');
     if (AccessToken.getCurrentAccessToken){
                     LoginManager.logOut();
                     }

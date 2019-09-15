@@ -110,7 +110,7 @@ export default class Fblogin extends Component {
   sendUpdate = async () => {
           const {fbData} = this.state;
           try{
-              let response = await fetch('http://192.168.43.102:8083/user',{
+              let response = await fetch('http://192.168.43.102:8083/user/create',{
                                           method: 'POST',
                                           headers: {
                                              'Accept': 'application/json',

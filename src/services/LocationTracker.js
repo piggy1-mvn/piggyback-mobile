@@ -17,32 +17,29 @@ export default class LocationTracker extends Component<{}> {
 
   getItemAs = async (item) => {
       try {
-        console.log("passed item : ", item)
         const value = await AsyncStorage.getItem(item);
-        console.log("hanged user ddi ", value);
         return value;
       } catch (error) {
-        console.log("unabl to fetch the value")
+        console.log("unable to fetch the value")
         // Handle errors here
       }
   }
 
   async componentDidMount(){
-     //value = await this.getItemAs('user_id');
-     console.log(" am inside didmount  ")
+
     try {
-                // console.log("passed item : ", item)
+
                  const value = await AsyncStorage.getItem('user_id');
                  if (value !== null) {
                      // We have data!!
-                     console.log("value updated in mount  ", value)
+
                      this.setState({ userid : Number(value) });
                    } else {
                      console.log('No value returned from storage');
                    }
 
                } catch (error) {
-                 console.log("unabl to fetch the value")
+                 console.log("unable to fetch the value")
                  // Handle errors here
                }
 
@@ -124,8 +121,7 @@ export default class LocationTracker extends Component<{}> {
   }
 
   handlePress = async () => {
-    console.log("usr from async ", this.state.userid);
-    console.log("in fetch call")
+
     fetch('http://192.168.43.102:8080/location',{
            method: 'POST',
            headers: {
@@ -171,11 +167,11 @@ export default class LocationTracker extends Component<{}> {
 
 
   componentDidUpdate(prevProps, prevState){
-     console.log("i was caledde");
+
      if (
        prevState.location !== this.state.location
        ) {
-          console.log("location changed");
+
           this.handlePress();
      }
    }

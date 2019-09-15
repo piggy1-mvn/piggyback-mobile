@@ -25,14 +25,9 @@ export default class RegisterPage extends Component{
 
 
     onRegisterPressed = async () => {
-      console.log("inside onregisterpressedd");
-      console.log("first_name", this.state.first_name);
-      console.log("last_name", this.state.last_name);
-      console.log("pass ", this.state.confirm_password);
-      console.log("email", this.state.user_email)
-      console.log("mobile_number", this.state.mobile_number)
       try{
-        let response = await fetch('http://192.168.43.102:8083/user',{
+      //http://192.168.43.102:8083/user/create
+        let response = await fetch('http://35.222.231.249:8083/user/create',{
                                     method: 'POST',
                                     headers: {
                                        'Accept': 'application/json',
@@ -60,6 +55,7 @@ export default class RegisterPage extends Component{
         }
       } catch(errors) {
         this.setState({errors: errors});
+        alert(errors)
       }
     }
 

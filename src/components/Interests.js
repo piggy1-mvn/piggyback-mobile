@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
 import Checkbox from "react-native-modest-checkbox";
+import NewUser from './user.js'
 
 const jsonData = {
   "items": [
@@ -10,6 +11,8 @@ const jsonData = {
   ]
 };
 
+var tokenvalue : ""
+
 export default class Interests extends Component{
      constructor(props){
             super(props);
@@ -17,7 +20,6 @@ export default class Interests extends Component{
 
             this.state = {
               options : [],
-              //checked : true
               userid : ""
             }
             }
@@ -51,18 +53,16 @@ export default class Interests extends Component{
        this.getOptions();
        try {
                const value = await AsyncStorage.getItem('user_id');
-               if (value !== null) {
-                  // We have data!!
-                  console.log(" inside interests component did mount ", value)
-                  this.setState({ userid : Number(value) });
+               tokenvalue = await AsyncStorage.getItem('tokenval');
+               if (value !== null && tokenvalue !== null) {
+                    this.setState({ userid : Number(value) });
                   } else {
-                    console.log('No value returned from storage');
-                    alert("Userid cannot be found")
+                    alert("Userid/accesstoken cannot be found")
                   }
 
                       } catch (error) {
                         console.log("unable to fetch the value")
-                        // Handle errors here
+
                       }
     }
 
@@ -70,32 +70,46 @@ export default class Interests extends Component{
         const { options } = this.state;
         options[index].checked = !options[index].checked;
         this.setState({ options: options });
-        console.log("options ", this.state.options);
+
       }
 
 
      updateInterests = async () => {
+
         let interests = this.state.options.filter(item =>item.checked).map((item=>item.title));
-        console.log(interests);
-        let url = "http://192.168.43.102:8083/user/interest/"
-        await fetch(`${url}${this.state.userid}`,{
-                         method: 'PATCH',
-                         headers: {
-                            'Accept': 'application/json',
-                            'Content-Type': 'application/json',
-                            },
-                         body: JSON.stringify({
-                           "user_interests" : interests
-                            })
-                        }).then(response => {
-                                console.log("response from server ",response)
-                                alert("failed to update your interest")
-                            })
-                            .catch(error =>{
-                                console.log("response failed to server",error)
-                                alert("failed to update your interests")
-                            })
-        }
+        //let url = "http://192.168.43.102:8083/user/interest/"
+        let url = "http://35.222.231.249:8083/user/interest/"
+        try{
+                  let response = await fetch(`${url}${this.state.userid}`,{
+                                  method: 'PATCH',
+                                  headers: {
+                                          'Content-Type': 'application/json',
+                                          'Authorization' : 'Bearer ' + tokenvalue
+                                  },
+                                  body: JSON.stringify({
+                                         "user_interests" : interests
+                                  })
+                                  })
+
+                  //let res = await response.json();
+                 console.log("status ", response.status);
+
+                  if (response.status >= 200 && response.status < 300) {
+                      console.log("response from server ",response);
+
+                       alert('Interests updated successfully !!');
+                  } else {
+                     console.log("error from server", response)
+                     throw new Error('Something went wrong');
+                   }
+                   }catch(error) {
+                       console.log("error ",error);
+                       alert(error);
+                       alert("Session expired !!! Log in Again !!")
+                       this.props.navigation.navigate('Home');
+                    }
+
+                }
 
 
     render() {

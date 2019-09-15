@@ -6,8 +6,6 @@ import HomePage from './HomePage';
 import RegisterPage from './RegisterPage';
 import Fblogin from './Fblogin.js'
 
-const userInfo = {email_id: 'elizabethjohnjk333@gmail.com', password : 'sarah'}
-
 export default class LoginPage extends Component{
 
     constructor(props){
@@ -19,33 +17,35 @@ export default class LoginPage extends Component{
        }
 
     checkLogin = async () => {
-       console.log("am inside checklogin");
-       await fetch('http://192.168.43.102:8083/user/login/',{
-               method: 'POST',
-               headers: {
-                        'Accept': 'application/json',
-                         'Content-Type': 'application/json',
-                         },
-               body: JSON.stringify({
-                     "email" : this.state.email_id,
-                     "user_password" : this.state.password
-                          })
-               }).then((response) => {
-                                 if (response.status >= 200 && response.status < 300) {
-                                    console.log("response from server ",response)
-                                    alert('You have successfully logged in  to PiggyBack !!');
-                                    AsyncStorage.setItem('isLoggedIn', '1');
-                                    this.props.navigation.navigate('Home');
-                                } else {
-                                   console.log("error from server", response)
-                                   throw new Error('Something went wrong');
-                                   alert("Something went wrong");
-                                 }
-                                })
-                                .catch(error =>{
-                                    console.log("response failed to server",error);
-                                    alert("Incorrect password or Email id");
-                                });
+
+       try{
+       //http://192.168.43.102:8083/user/login
+           let response = await fetch('http://35.222.231.249:8083/user/login',{
+                                           method: 'POST',
+                                           headers: {
+                                              'Accept': 'application/json',
+                                              'Content-Type': 'application/json',
+                                                     },
+                                           body: JSON.stringify({
+                                               "email" : this.state.email_id,
+                                               "user_password" : this.state.password
+                                              })
+                                           })
+               let res = await response.json();
+               if (response.status >= 200 && response.status < 300) {
+                  alert('You have successfully logged in  to PiggyBack !!');
+                  await AsyncStorage.setItem('isLoggedIn', '1');
+                  await AsyncStorage.setItem('tokenval', res.jwttoken);
+                  this.props.navigation.navigate('Home');
+               } else {
+                  console.log("error from server", response)
+                  throw new Error('Something went wrong');
+                  alert("Something went wrong");
+               }
+             } catch(error) {
+               console.log("response failed to server",error);
+               alert("Incorrect password or Email id");
+             }
 
        }
 
