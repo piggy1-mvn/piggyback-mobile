@@ -1,4 +1,6 @@
 apply plugin: "com.android.application"
+//apply plugin: "com.google.firebase.firebase-perf"
+//apply plugin: 'io.fabric'
 
 import com.android.build.OutputFile
 
@@ -133,6 +135,8 @@ android {
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
         versionName "1.0"
+
+        multiDexEnabled true
     }
     splits {
         abi {
@@ -191,6 +195,25 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation "com.facebook.react:react-native:+"  // From node_modules
     implementation 'com.facebook.android:facebook-android-sdk:[5,6)'
+    implementation project(':react-native-firebase')
+
+    implementation "com.google.firebase:firebase-messaging:18.0.0"
+    //implementation 'me.leolin:ShortcutBadger:1.1.21@aar'
+
+    // Firebase bom setup
+    implementation platform("com.google.firebase:firebase-bom:22.2.0")
+
+    // Required dependencies
+    //noinspection GradleCompatible
+    implementation "com.google.android.gms:play-services-base:16.1.0"
+    implementation "com.google.firebase:firebase-core"
+
+    // Cloud Messaging / FCM
+    implementation "com.google.firebase:firebase-messaging"
+
+    // Needed to support API<21, though there is a small chance proguard shrinks things sufficiently
+    implementation "androidx.multidex:multidex:2.0.1"
+
 
     if (enableHermes) {
       def hermesPath = "../../node_modules/hermesvm/android/";
@@ -207,5 +230,7 @@ task copyDownloadableDepsToLibs(type: Copy) {
     from configurations.compile
     into 'libs'
 }
+
+apply plugin: 'com.google.gms.google-services'
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)

@@ -1,9 +1,14 @@
 import React, { Component } from 'react';
 import { Button, View, Text, AsyncStorage, TextInput} from 'react-native';
 import { LoginButton, AccessToken, LoginManager, GraphRequestManager, GraphRequest } from 'react-native-fbsdk';
+import * as config from "../config/Config.js"
 import newUser from './user.js';
 import Home from './HomePage.js';
 
+
+var fbTokenval : ""
+var regOk : false
+const baseUrl = config.baseUrlUserApi;
 
 export default class Fblogin extends Component {
      constructor(props){
@@ -23,11 +28,8 @@ export default class Fblogin extends Component {
             };
 
  getGraphRequest = async() => {
-         let data = await  AccessToken.getCurrentAccessToken();
-
-         let accessToken = data.accessToken
-         //alert("accesstoken from server " + accessToken.toString())
-
+         fbTokenval = await  AccessToken.getCurrentAccessToken();
+         let accessToken = fbTokenval.accessToken
          const responseInfoCallback = (error,result) => {
                           if (error) {
                                alert('Error fetching data ' + error.toString());
@@ -61,13 +63,10 @@ export default class Fblogin extends Component {
 
        if (result.isCancelled)  {
          throw new Error("User cancelled the request");
-          console.log("User did not allow to authenticate");
+
        }
 
-        console.log('Permissions granted to user :', result.grantedPermissions.toString())
-        console.log("am going for facebook login");
         alert("Permissions granted to user : ", result.grantedPermissions);
-
         let pure = await this.isInRelationship();
 
     } catch (e) {
@@ -107,10 +106,48 @@ export default class Fblogin extends Component {
     );
   }
 
+fbChecklogin = async () => {
+    const {fbData} = this.state;
+    let fb_id = fbTokenval.userID
+    let fbtoken = fbTokenval.accessToken
+    //'http://192.168.43.102:8083/user/FBUserlogin'
+  try{
+        let response = await fetch(baseUrl + 'FbUserLogin',{
+                                             method: 'POST',
+                                            headers: {
+                                               'Content-Type': 'application/json',
+                                               'Authorization' : fbtoken
+                                                      },
+                                            body: JSON.stringify({
+                                               "fb_user_id" : fb_id,
+                                               "email" : fbData.email
+                                               })
+                                            })
+
+            if (response.status >= 200 && response.status < 300) {
+               let res = await response.json();
+               alert('You have successfully logged in  to PiggyBack !!');
+               await AsyncStorage.setItem('isLoggedIn', '1');
+               await AsyncStorage.setItem('tokenval', res.jwttoken);
+               this.props.navigation.navigate('Home');
+            } else {
+               console.log("error from server", response)
+               throw new Error('Something went wrong');
+               alert("Something went wrong");
+
+             }
+              } catch(errors) {
+                 alert(errors);
+                 this.props.navigation.navigate('Login')
+              }
+
+
+}
   sendUpdate = async () => {
           const {fbData} = this.state;
           try{
-              let response = await fetch('http://192.168.43.102:8083/user/create',{
+          //'http://192.168.43.102:8083/user/create'
+              let response = await fetch(baseUrl + 'create',{
                                           method: 'POST',
                                           headers: {
                                              'Accept': 'application/json',
@@ -127,18 +164,24 @@ export default class Fblogin extends Component {
                                              "device_id":"23ADEVIEW"
                                              })
                                           })
-              let res = await response.json();
+
               if (response.status >= 200 && response.status < 300) {
+                 let res = await response.json();
                  await AsyncStorage.setItem('user_id', JSON.stringify(res.id));
-                 await AsyncStorage.setItem('isLoggedIn', '1');
-                 alert("Redirecting to Home Page");
-                 this.props.navigation.navigate('Home');
+                 console.log("response for registeration ok")
+                 regOk = true
               } else {
-                 let error = res;
+                 let error = response;
                  throw error;
                 }
+
+               if (regOk == true){
+                    await this.fbChecklogin();
+                  }
             } catch(errors) {
                alert(errors);
             }
     }
 };
+
+
