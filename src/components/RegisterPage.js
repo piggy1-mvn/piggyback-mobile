@@ -3,6 +3,9 @@ import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStora
 import newUser from './user.js';
 import HomePage from './HomePage.js';
 import LoginPage from './LoginPage.js';
+import * as config from "../config/Config.js";
+
+const baseUrl = config.baseUrlUserApi;
 
 export default class RegisterPage extends Component{
     constructor(props){
@@ -25,9 +28,10 @@ export default class RegisterPage extends Component{
 
 
     onRegisterPressed = async () => {
+      let deviceT = await AsyncStorage.getItem('fcmToken');
+      let url = baseUrl + 'create'
       try{
-      //http://192.168.43.102:8083/user/create
-        let response = await fetch('http://35.222.231.249:8083/user/create',{
+         let response = await fetch(`${url}`,{
                                     method: 'POST',
                                     headers: {
                                        'Accept': 'application/json',
@@ -41,7 +45,7 @@ export default class RegisterPage extends Component{
                                        "mobile_verified" : "true",
                                        "user_role" : "PIGGY_USER",
                                        "email" : this.state.user_email,
-                                       "device_id":"23ADEVIEW"
+                                       "device_id":deviceT
                                        })
                                     })
         let res = await response.json();

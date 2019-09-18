@@ -4,7 +4,11 @@ import { LoginButton, AccessToken, LoginManager } from 'react-native-fbsdk';
 import newUser from './user.js';
 import HomePage from './HomePage';
 import RegisterPage from './RegisterPage';
+import * as config from "../config/Config.js"
 import Fblogin from './Fblogin.js'
+
+const baseUrl = config.baseUrlUserApi;
+console.log("baseurl in login page : ", baseUrl)
 
 export default class LoginPage extends Component{
 
@@ -17,10 +21,10 @@ export default class LoginPage extends Component{
        }
 
     checkLogin = async () => {
+        let url = baseUrl + 'login'
 
-       try{
-       //http://192.168.43.102:8083/user/login
-           let response = await fetch('http://35.222.231.249:8083/user/login',{
+        try{
+            let response = await fetch(`${url}`,{
                                            method: 'POST',
                                            headers: {
                                               'Accept': 'application/json',

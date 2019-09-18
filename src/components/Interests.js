@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
 import Checkbox from "react-native-modest-checkbox";
+import * as config from "../config/Config.js"
 import NewUser from './user.js'
 
 const jsonData = {
@@ -10,6 +11,11 @@ const jsonData = {
      {"name" : "Clothes"}
   ]
 };
+
+const baseUserUrl = config.baseUrlUserApi;
+const basePartnerUrl = config.baseUrlPartnerApi;
+console.log("user url in location ", baseUserUrl);
+console.log("partner url in location ", basePartnerUrl);
 
 var tokenvalue : ""
 
@@ -25,8 +31,10 @@ export default class Interests extends Component{
             }
 
     getOptions = async ()=> {
+       //let url = basePartnerUrl + 'interests/'
+       //console.log("url in partner interest ", url)
        try{
-           //let response = await fetch('http://192.168.43.102:8083/partner/interests/')
+           //let response = await fetch(`${url}`)
            //let res = await response.json();
            //if (response.status >= 200 && response.status < 300){
                console.log("am in if oondition");
@@ -78,7 +86,11 @@ export default class Interests extends Component{
 
         let interests = this.state.options.filter(item =>item.checked).map((item=>item.title));
         //let url = "http://192.168.43.102:8083/user/interest/"
-        let url = "http://35.222.231.249:8083/user/interest/"
+        //let url = "http://35.222.231.249:8083/user/interest/"
+        let url = baseUserUrl + 'interest/'
+        console.log("url in interest ", url)
+        console.log("interests  selecetd ", interests)
+        console.log("tokenvalue ", tokenvalue)
         try{
                   let response = await fetch(`${url}${this.state.userid}`,{
                                   method: 'PATCH',

@@ -110,7 +110,7 @@ fbChecklogin = async () => {
     const {fbData} = this.state;
     let fb_id = fbTokenval.userID
     let fbtoken = fbTokenval.accessToken
-    //'http://192.168.43.102:8083/user/FBUserlogin'
+
   try{
         let response = await fetch(baseUrl + 'FbUserLogin',{
                                              method: 'POST',
@@ -144,10 +144,10 @@ fbChecklogin = async () => {
 
 }
   sendUpdate = async () => {
+          let deviceT = await AsyncStorage.getItem('fcmToken');
           const {fbData} = this.state;
           try{
-          //'http://192.168.43.102:8083/user/create'
-              let response = await fetch(baseUrl + 'create',{
+               let response = await fetch(baseUrl + 'create',{
                                           method: 'POST',
                                           headers: {
                                              'Accept': 'application/json',
@@ -161,7 +161,7 @@ fbChecklogin = async () => {
                                              "user_type": "USER_TYPE_FB",
                                              "user_role": "PIGGY_USER",
                                              "email" : fbData.email,
-                                             "device_id":"23ADEVIEW"
+                                             "device_id": deviceT
                                              })
                                           })
 
