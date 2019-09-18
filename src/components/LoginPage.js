@@ -4,9 +4,11 @@ import { LoginButton, AccessToken, LoginManager } from 'react-native-fbsdk';
 import newUser from './user.js';
 import HomePage from './HomePage';
 import RegisterPage from './RegisterPage';
+import * as config from "../config/Config.js"
 import Fblogin from './Fblogin.js'
 
-const userInfo = {email_id: 'elizabethjohnjk333@gmail.com', password : 'sarah'}
+const baseUrl = config.baseUrlUserApi;
+console.log("baseurl in login page : ", baseUrl)
 
 export default class LoginPage extends Component{
 
@@ -19,43 +21,37 @@ export default class LoginPage extends Component{
        }
 
     checkLogin = async () => {
-       console.log("am inside checklogin");
-       await fetch('http://192.168.43.102:8083/user/login/',{
-               method: 'POST',
-               headers: {
-                        'Accept': 'application/json',
-                         'Content-Type': 'application/json',
-                         },
-               body: JSON.stringify({
-                     "email" : this.state.email_id,
-                     "user_password" : this.state.password
-                          })
-               }).then((response) => {
-                                 if (response.status >= 200 && response.status < 300) {
-                                    console.log("response from server ",response)
-                                    alert('You have successfully logged in  to PiggyBack !!');
-                                    AsyncStorage.setItem('isLoggedIn', '1');
-                                    this.props.navigation.navigate('Home');
-                                } else {
-                                   console.log("error from server", response)
-                                   throw new Error('Something went wrong');
-                                   alert("Something went wrong");
-                                 }
-                                })
-                                .catch(error =>{
-                                    console.log("response failed to server",error);
-                                    alert("Incorrect password or Email id");
-                                });
+        let url = baseUrl + 'login'
 
-       //if(userInfo.email_id === this.state.email_id && userInfo.password === this.state.password){
-         // alert('You have successfully logged in  to PiggyBack !!');
-          //await AsyncStorage.setItem('isLoggedIn', '1');
-          //this.props.navigation.navigate('Home');
-          //} else {
-           //alert('Email id or password entered is wrong !!');
-          //}
+        try{
+            let response = await fetch(`${url}`,{
+                                           method: 'POST',
+                                           headers: {
+                                              'Accept': 'application/json',
+                                              'Content-Type': 'application/json',
+                                                     },
+                                           body: JSON.stringify({
+                                               "email" : this.state.email_id,
+                                               "user_password" : this.state.password
+                                              })
+                                           })
+               let res = await response.json();
+               if (response.status >= 200 && response.status < 300) {
+                  alert('You have successfully logged in  to PiggyBack !!');
+                  await AsyncStorage.setItem('isLoggedIn', '1');
+                  await AsyncStorage.setItem('tokenval', res.jwttoken);
+                  this.props.navigation.navigate('Home');
+               } else {
+                  console.log("error from server", response)
+                  throw new Error('Something went wrong');
+                  alert("Something went wrong");
+               }
+             } catch(error) {
+               console.log("response failed to server",error);
+               alert("Incorrect password or Email id");
+             }
 
-    }
+       }
 
 
     render() {
@@ -125,4 +121,3 @@ const styles = StyleSheet.create({
      fontSize : 20
      }
 })
-

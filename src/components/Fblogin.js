@@ -1,105 +1,187 @@
 import React, { Component } from 'react';
-import { Button, View, Text, AsyncStorage } from 'react-native';
+import { Button, View, Text, AsyncStorage, TextInput} from 'react-native';
 import { LoginButton, AccessToken, LoginManager, GraphRequestManager, GraphRequest } from 'react-native-fbsdk';
+import * as config from "../config/Config.js"
 import newUser from './user.js';
 import Home from './HomePage.js';
 
+
+var fbTokenval : ""
+var regOk : false
+const baseUrl = config.baseUrlUserApi;
 
 export default class Fblogin extends Component {
      constructor(props){
              super(props);
              console.log(this.props);
+             this.state = {
+               fbData :{},
+               mobile_number : '',
+               getphone : false
+
+              }
              }
 
-initUser=(token)=>{
-    console.log("access token --> ", token);
-    console.log("access token 1 --> ", token.accessToken);
-    console.log('https://graph.facebook.com/v2.5/me?fields=email,name,first_name,friends&access_token=' + token.accessToken);
-    fetch('https://graph.facebook.com/v2.5/me?fields=email,name,first_name,last_name&access_token=' + token.accessToken)
-      .then((response) => response.json())
-      .then((response) => {
-         newUser.first_name = response.first_name
-         newUser.last_name = response.last_name
-         newUser.email = response.email
-         console.log("response --> ", response);
-         console.log("email --> ",newUser.email);
-         console.log("nsme -> ",response.name);
-         console.log("firstname--> ",response.first_name);
-      })
-      .catch(() => {
-          console.log('ERROR GETTING DATA FROM FACEBOOK')
-          alert("Network error, failed to log you in ")
-       })
-}
+  isInRelationship = async () => {
+              const requestedInfo = await this.getGraphRequest();
+
+            };
+
+ getGraphRequest = async() => {
+         fbTokenval = await  AccessToken.getCurrentAccessToken();
+         let accessToken = fbTokenval.accessToken
+         const responseInfoCallback = (error,result) => {
+                          if (error) {
+                               alert('Error fetching data ' + error.toString());
+                             } else {
+                              alert('Success fetching data: ' + result.toString());
+                              this.setState({fbData : result , getphone : true})
+                               }
+                                }
+
+         const infoRequest = new GraphRequest(
+                                                '/me',
+                                                {
+                                                  accessToken : accessToken,
+                                                  parameters : {
+                                                   fields :{
+                                                      string : 'email,name,first_name,last_name'
+                                                      }
+                                                      }
+                                                },
+                                                responseInfoCallback
+                                                );
+         new GraphRequestManager().addRequest(infoRequest).start();
+         };
+
+
+
 
  facebookLogin = async() => {
     try {
-       const result = await LoginManager.logInWithPermissions(["public_profile","email"]);
+      const result = await LoginManager.logInWithPermissions(["public_profile","email"]);
 
        if (result.isCancelled)  {
-          throw new Error("User cancelled the request");
-          console.log("User did not allow to authenticate");
+         throw new Error("User cancelled the request");
+
        }
 
-        console.log('Permissions granted to user :', result.grantedPermissions.toString())
-        console.log("am going for facebook login");
         alert("Permissions granted to user : ", result.grantedPermissions);
-
-        AccessToken.getCurrentAccessToken().then(
-         (data) => {
-           let accessToken = data.accessToken
-           alert("accesstoken from server " + accessToken.toString())
-
-           const responseInfoCallback = (error,result) => {
-              if (error) {
-                console.log("error from server ", error)
-                alert('Error fetching data ' + error.toString());
-                } else {
-                 console.log("result -->", result)
-                 alert('Sucess fetching data: ' + result.toString());
-                 AsyncStorage.setItem('isLoggedIn', '1');
-                 this.props.navigation.navigate('Home');
-
-                }
-              }
-
-           const infoRequest = new GraphRequest(
-             '/me',
-             {
-               accessToken : accessToken,
-               parameters : {
-                fields :{
-                   string : 'email,name,first_name,last_name'
-                   }
-                   }
-             },
-             responseInfoCallback
-             );
-
-             new GraphRequestManager().addRequest(infoRequest).start()
-            }
-         )
-
-
+        let pure = await this.isInRelationship();
 
     } catch (e) {
         console.log("error", e);
         }
  }
 
+
+
  logout = () =>{
                 if (AccessToken.getCurrentAccessToken)
                 LoginManager.logOut();
                    }
 
+   shouldComponentUpdate(props, state) {
+        return state.getphone == true;
+    }
+
   render() {
-    return (
-      <View>
-        <Button title="Login with FaceBook" onPress={this.facebookLogin} />
-        <Button title="Logout" onPress={this.logout} />
-      </View>
+      return (
+         <View style={{marginTop:20}}>
+          {this.state.getphone == true ?
+             [
+               <TextInput
+                   placeholder = "enter your phone number"
+                   onChangeText = { (text) => this.setState({mobile_number : text})} />,
+               <Button title="Submit my contact" onPress={this.sendUpdate} />
+             ]
+             :
+              [
+                <Button title="Login with FaceBook" onPress={this.facebookLogin} />
+
+               ]
+               }
+
+       </View>
     );
   }
 
+fbChecklogin = async () => {
+    const {fbData} = this.state;
+    let fb_id = fbTokenval.userID
+    let fbtoken = fbTokenval.accessToken
 
+  try{
+        let response = await fetch(baseUrl + 'FbUserLogin',{
+                                             method: 'POST',
+                                            headers: {
+                                               'Content-Type': 'application/json',
+                                               'Authorization' : fbtoken
+                                                      },
+                                            body: JSON.stringify({
+                                               "fb_user_id" : fb_id,
+                                               "email" : fbData.email
+                                               })
+                                            })
+
+            if (response.status >= 200 && response.status < 300) {
+               let res = await response.json();
+               alert('You have successfully logged in  to PiggyBack !!');
+               await AsyncStorage.setItem('isLoggedIn', '1');
+               await AsyncStorage.setItem('tokenval', res.jwttoken);
+               this.props.navigation.navigate('Home');
+            } else {
+               console.log("error from server", response)
+               throw new Error('Something went wrong');
+               alert("Something went wrong");
+
+             }
+              } catch(errors) {
+                 alert(errors);
+                 this.props.navigation.navigate('Login')
+              }
+
+
+}
+  sendUpdate = async () => {
+          let deviceT = await AsyncStorage.getItem('fcmToken');
+          const {fbData} = this.state;
+          try{
+               let response = await fetch(baseUrl + 'create',{
+                                          method: 'POST',
+                                          headers: {
+                                             'Accept': 'application/json',
+                                             'Content-Type': 'application/json',
+                                                    },
+                                          body: JSON.stringify({
+                                             "first_name" : fbData.first_name,
+                                             "last_name" : fbData.last_name,
+                                             "mobile_number" : this.state.mobile_number,
+                                             "mobile_verified": "true",
+                                             "user_type": "USER_TYPE_FB",
+                                             "user_role": "PIGGY_USER",
+                                             "email" : fbData.email,
+                                             "device_id": deviceT
+                                             })
+                                          })
+
+              if (response.status >= 200 && response.status < 300) {
+                 let res = await response.json();
+                 await AsyncStorage.setItem('user_id', JSON.stringify(res.id));
+                 console.log("response for registeration ok")
+                 regOk = true
+              } else {
+                 let error = response;
+                 throw error;
+                }
+
+               if (regOk == true){
+                    await this.fbChecklogin();
+                  }
+            } catch(errors) {
+               alert(errors);
+            }
+    }
 };
+
+

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
+import { AccessToken, LoginManager } from 'react-native-fbsdk';
 import newUser from './user.js';
 import LocationTracker from '../services/LocationTracker.js';
 import { createStackNavigator, createAppContainer } from 'react-navigation';
@@ -17,23 +18,25 @@ export default class RegisterPage extends Component{
        <View style = {styles.container}>
           <Text style = {styles.text}>Welcome to Piggy</Text>
           <Button
-             title="App requests Location tracking"
-             onPress={() => this.props.navigation.navigate('LocationTracker')}
-          />
-          <Button
-             title="Set your Interests"
+             title="Set my Interests"
              onPress={() => this.props.navigation.navigate('Interests')}
           />
           <Button
             title = "Logout from Piggy"
             onPress = {this.logout}
           />
+          <LocationTracker />
        </View>
        );
 }
 
   logout = async () => {
-    await AsyncStorage.clear();
+    //await AsyncStorage.clear();
+    await AsyncStorage.removeItem('tokenval');
+    await AsyncStorage.removeItem('isLoggedIn');
+    if (AccessToken.getCurrentAccessToken){
+                    LoginManager.logOut();
+                    }
     this.props.navigation.navigate('Login');
   }
 }

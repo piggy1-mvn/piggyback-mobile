@@ -1,19 +1,56 @@
 import React, { Component } from 'react';
-import { Button,PermissionsAndroid,Platform,StyleSheet,Text,ToastAndroid,View} from 'react-native';
+import { Button,PermissionsAndroid,Platform,StyleSheet,Text,ToastAndroid,View,AsyncStorage} from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
 import styles from '../styles/style.js';
-import Interests from '../components/Interests.js';
+import * as config from "../config/Config.js"
+
+var value;
+var deviceToken : ""
+
+const baseUrl = config.baseUrlLocationApi;
 
 export default class LocationTracker extends Component<{}> {
   watchId = null;
 
   state = {
+    userid : "",
     loading: false,
     updatesEnabled: false,
     location: {}
   };
 
-  hasLocationPermission = async () => {
+  getItemAs = async (item) => {
+      try {
+        const value = await AsyncStorage.getItem(item);
+        return value;
+      } catch (error) {
+        console.log("unable to fetch the value")
+        // Handle errors here
+      }
+  }
+
+  async componentDidMount(){
+
+    try {
+                 deviceToken = await AsyncStorage.getItem('fcmToken');
+                 const value = await AsyncStorage.getItem('user_id');
+
+                 if (value !== null) {
+                     // We have data!!
+
+                     this.setState({ userid : Number(value) });
+                   } else {
+                     console.log('No value returned from storage');
+                   }
+
+               } catch (error) {
+                 console.log("unable to fetch the value")
+                 // Handle errors here
+               }
+
+  }
+
+   hasLocationPermission = async () => {
     if (Platform.OS === 'ios' ||
         (Platform.OS === 'android' && Platform.Version < 23)) {
       return true;
@@ -69,10 +106,7 @@ export default class LocationTracker extends Component<{}> {
         (position) => {
           this.setState({ location: position });
           console.log("current position ",this.state.location);
-          console.log("Hi");
-          console.log("watchid ", this.watchId);
-
-        },
+         },
         (error) => {
           this.setState({ location: error });
           console.log(error);
@@ -92,19 +126,20 @@ export default class LocationTracker extends Component<{}> {
   }
 
   handlePress = async () => {
-    console.log("in fetch call")
-    fetch('http://192.168.43.102:8080/location',{
+    console.log("handlepress ", deviceToken)
+    console.log("stringified device id ", JSON.stringify(deviceToken))
+    fetch(`${baseUrl}`,{
            method: 'POST',
            headers: {
               'Accept': 'application/json',
               'Content-Type': 'application/json',
               },
            body: JSON.stringify({
-             "userId": "123",
+             "userId": this.state.userid,
              "latitude":this.state.location.coords.latitude,
              "longitude":this.state.location.coords.longitude,
              "gpsAccuracy":this.state.location.coords.accuracy,
-             "deviceId":"23ADEVIEW"
+             "deviceId":deviceToken
               })
           }).then(response => {
                   console.log("response from server ",response)
@@ -116,13 +151,13 @@ export default class LocationTracker extends Component<{}> {
 
 
   componentWillUpdate(newProps,newState){
-   console.log("called before the render method");
    console.log("NewProps: ",newProps);
    console.log("NewState: ",newState);
   }
 
   componentWillUnmount(){
      this.removeLocationUpdates();
+     console.log("location updates stopped");
     }
 
   render() {
@@ -131,7 +166,6 @@ export default class LocationTracker extends Component<{}> {
       <View style={styles.container}>
         <View style={styles.buttons}>
             <Button title='Allow Location Tracking' onPress={this.getLocationUpdates} />
-            <Button title='Goto Preferences'  onPress={() => this.props.navigation.navigate('Interests')} />
         </View>
       </View>
     );
@@ -139,11 +173,11 @@ export default class LocationTracker extends Component<{}> {
 
 
   componentDidUpdate(prevProps, prevState){
-     console.log("i was caledde");
+
      if (
        prevState.location !== this.state.location
        ) {
-          console.log("location changed");
+
           this.handlePress();
      }
    }

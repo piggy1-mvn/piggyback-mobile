@@ -3,6 +3,9 @@ import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStora
 import newUser from './user.js';
 import HomePage from './HomePage.js';
 import LoginPage from './LoginPage.js';
+import * as config from "../config/Config.js";
+
+const baseUrl = config.baseUrlUserApi;
 
 export default class RegisterPage extends Component{
     constructor(props){
@@ -20,12 +23,15 @@ export default class RegisterPage extends Component{
        device_id : "ABC123",
        errors : []
      }
+
     }
 
+
     onRegisterPressed = async () => {
-      console.log("inside onregisterpressedd");
+      let deviceT = await AsyncStorage.getItem('fcmToken');
+      let url = baseUrl + 'create'
       try{
-        let response = await fetch('http://192.168.43.102:8083/user',{
+         let response = await fetch(`${url}`,{
                                     method: 'POST',
                                     headers: {
                                        'Accept': 'application/json',
@@ -39,36 +45,21 @@ export default class RegisterPage extends Component{
                                        "mobile_verified" : "true",
                                        "user_role" : "PIGGY_USER",
                                        "email" : this.state.user_email,
-                                       "device_id":"23ADEVIEW"
+                                       "device_id":deviceT
                                        })
                                     })
         let res = await response.json();
         if (response.status >= 200 && response.status < 300) {
-           console.log("response from server if --> ", res);
-           console.log("res email --> ", res.email);
-           console.log("res id --> ", res.id);
-           await AsyncStorage.setItem('user_email', res.email);
-           await AsyncStorage.setItem('user_id', res.id);
+           await AsyncStorage.setItem('user_email', JSON.stringify(res.email));
+           await AsyncStorage.setItem('user_id', JSON.stringify(res.id));
            this.props.navigation.navigate('Login');
         } else {
-           console.log("in else block")
            let error = res;
            throw error;
-           console.log("error response --> ", error);
         }
       } catch(errors) {
-         console.log("inside catch")
-         //let formErrors = JSON.parse(errors);
-         //let errorsArray = [];
-         //for(var key in formErrors){
-           // if(formErrors[key].length > 1) {
-             //  formErrors[key].map(error => errorsArray.push(`${key} ${error}`));
-            //} else {
-              // errorsArray.push(`${key} ${formErrors[key]}`)
-            //}
-         //}
-         console.log("error from server-->> ", errors)
         this.setState({errors: errors});
+        alert(errors)
       }
     }
 
@@ -129,7 +120,6 @@ export default class RegisterPage extends Component{
             <Text style ={styles.buttontext}>Sign Me up!!</Text>
           </TouchableOpacity>
 
-          <Errors errors= {this.state.errors}/>
 
          </View>
        </View>

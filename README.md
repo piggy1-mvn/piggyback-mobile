@@ -13,6 +13,7 @@
    npm install react-native-gesture-handler
    npm install react-native-reanimated
    npm install @react-native-community/checkbox --save
+   npm install react-native-modest-checkbox --save
 
 3. To run in device, connect the device in DEBUG mode under developer options. Use USB debugging.
     Once, connected, execute the command in the folder :
