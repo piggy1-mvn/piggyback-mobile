@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Button, View, Text, AsyncStorage, TextInput} from 'react-native';
-import { LoginButton, AccessToken, LoginManager, GraphRequestManager, GraphRequest } from 'react-native-fbsdk';
+import { ActivityIndicator, StatusBar, LoginButton, AccessToken, LoginManager, GraphRequestManager, GraphRequest } from 'react-native-fbsdk';
 import * as config from "../config/Config.js"
 import newUser from './user.js';
 import Home from './HomePage.js';
@@ -17,7 +17,8 @@ export default class Fblogin extends Component {
              this.state = {
                fbData :{},
                mobile_number : '',
-               getphone : false
+               getphone : false,
+			   loading : false,
 
               }
              }
@@ -27,6 +28,45 @@ export default class Fblogin extends Component {
 
             };
 
+  checkIfExists = async () => {
+      const {fbData} = this.state;
+      let fb_id = fbTokenval.userID
+      let fbtoken = fbTokenval.accessToken
+
+    try{
+          let response = await fetch(baseUrl + 'FBUserLogin',{
+                                               method: 'POST',
+                                              headers: {
+                                                 'Content-Type': 'application/json',
+                                                 'Authorization' : fbtoken
+                                                        },
+                                              body: JSON.stringify({
+                                                 "fb_user_id" : fb_id,
+                                                 "email" : fbData.email
+                                                 })
+                                              })
+
+              if (response.status >= 200 && response.status < 300) {
+                 let res = await response.json();
+                 alert('You have successfully logged in  to PiggyBack !!');
+                 await AsyncStorage.setItem('isLoggedIn', '1');
+                 await AsyncStorage.setItem('tokenval', res.jwttoken);
+                 this.props.navigation.navigate('Home');
+              } else {
+                 console.log("error from server", response)
+                 throw new Error('Something went wrong');
+                 alert("Something went wrong");
+
+               }
+                } catch(errors) {
+                   alert(errors);
+                   this.setState({loading : false, getphone : true})
+                    console.log("going to register and check")
+                    alert("Please enter your contact to register")
+                }
+
+	 }
+
  getGraphRequest = async() => {
          fbTokenval = await  AccessToken.getCurrentAccessToken();
          let accessToken = fbTokenval.accessToken
@@ -35,7 +75,11 @@ export default class Fblogin extends Component {
                                alert('Error fetching data ' + error.toString());
                              } else {
                               alert('Success fetching data: ' + result.toString());
-                              this.setState({fbData : result , getphone : true})
+                              //this.setState({fbData : result , getphone : true})
+							  this.setState({fbData : result, loading : true});
+							  this.checkIfExists();
+							  console.log("trigered checkifexists")
+
                                }
                                 }
 
@@ -58,6 +102,8 @@ export default class Fblogin extends Component {
 
 
  facebookLogin = async() => {
+    console.log("in facebook login")
+
     try {
       const result = await LoginManager.logInWithPermissions(["public_profile","email"]);
 
@@ -81,30 +127,30 @@ export default class Fblogin extends Component {
                 LoginManager.logOut();
                    }
 
-   shouldComponentUpdate(props, state) {
-        return state.getphone == true;
-    }
+   //shouldComponentUpdate(props, state) {
+     //   return state.getphone == true;
+   // }
 
-  render() {
-      return (
-         <View style={{marginTop:20}}>
-          {this.state.getphone == true ?
-             [
-               <TextInput
-                   placeholder = "enter your phone number"
-                   onChangeText = { (text) => this.setState({mobile_number : text})} />,
-               <Button title="Submit my contact" onPress={this.sendUpdate} />
-             ]
-             :
-              [
-                <Button title="Login with FaceBook" onPress={this.facebookLogin} />
-
+   render() {
+        return (
+           <View style={{marginTop:20}}>
+            {this.state.getphone == true ?
+               [
+                 <TextInput
+                     placeholder = "enter your phone number"
+                     onChangeText = { (text) => this.setState({mobile_number : text})} />,
+                 <Button title="Submit my contact" onPress={this.sendUpdate} />
                ]
-               }
+               :
+                [
+                  <Button title="Login with FaceBook" onPress={this.facebookLogin} />
 
-       </View>
-    );
-  }
+                 ]
+                 }
+
+         </View>
+      );
+    }
 
 fbChecklogin = async () => {
     const {fbData} = this.state;
@@ -112,7 +158,7 @@ fbChecklogin = async () => {
     let fbtoken = fbTokenval.accessToken
 
   try{
-        let response = await fetch(baseUrl + 'FbUserLogin',{
+        let response = await fetch(baseUrl + 'FBUserLogin',{
                                              method: 'POST',
                                             headers: {
                                                'Content-Type': 'application/json',
@@ -143,7 +189,9 @@ fbChecklogin = async () => {
 
 
 }
-  sendUpdate = async () => {
+
+
+ sendUpdate = async () => {
           let deviceT = await AsyncStorage.getItem('fcmToken');
           const {fbData} = this.state;
           try{
@@ -183,5 +231,7 @@ fbChecklogin = async () => {
             }
     }
 };
+
+
 
 

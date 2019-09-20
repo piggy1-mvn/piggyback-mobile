@@ -8,11 +8,13 @@ import HomePage from './src/components/HomePage.js';
 import LocationTracker from './src/services/LocationTracker.js';
 import Interests from './src/components/Interests.js';
 import Fblogin from './src/components/Fblogin.js';
+import NotificationPage from './src/components/NotificationPage.js';
 
 const AppNavigator = createStackNavigator ({
     Home : HomePage,
     LocationTracker : LocationTracker,
-    Interests : Interests
+    Interests : Interests,
+
      },
      {
        //initialRouteName: 'Home'
@@ -22,9 +24,18 @@ const AppNavigator = createStackNavigator ({
 const LoginNavigator = createStackNavigator({
    Login : LoginPage,
    Register : RegisterPage
- },
+  },
    {
        initialRouteName: 'Login'
+    }
+ );
+
+const NotifyNavigator = createStackNavigator({
+   Notification : NotificationPage
+
+  },
+   {
+       //initialRouteName: 'Login'
     }
  );
 
@@ -36,8 +47,10 @@ class AuthLoadingScreen extends Component {
     }
 
     loadData = async() => {
+      console.log("in authloadd")
       const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
       this.props.navigation.navigate(isLoggedIn !== '1'? 'LoginNav' : 'AppN' )
+
     }
 
     render() {
@@ -62,7 +75,8 @@ const styles = StyleSheet.create({
 const AppswNavigator  = createSwitchNavigator({
    AuthLoading : AuthLoadingScreen,
    AppN : AppNavigator,
-   LoginNav : LoginNavigator
+   LoginNav : LoginNavigator,
+   Notification : NotificationPage
 },
 {
    initialRouteName : 'AuthLoading'
