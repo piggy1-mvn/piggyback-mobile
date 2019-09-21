@@ -32,9 +32,16 @@ export default class NotificationPage extends Component {
 const styles = StyleSheet.create({
    container : {
     flex: 1,
+    flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center'
   },
+  subcontainer : {
+      flex: 1,
+      flexDirection: 'column',
+      justifyContent: 'center',
+      alignItems: 'center'
+    },
   TextStyle: {
    color: '#E91E63',
    textDecorationLine: 'underline'

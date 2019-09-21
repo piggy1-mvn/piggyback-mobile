@@ -31,29 +31,29 @@ export default class Interests extends Component{
             }
 
     getOptions = async ()=> {
-       //let url = basePartnerUrl + 'interests/'
-       //console.log("url in partner interest ", url)
+       let url = basePartnerUrl + 'categories'
+       console.log("url in partner interest ", url)
        try{
-           //let response = await fetch(`${url}`)
-           //let res = await response.json();
-           //if (response.status >= 200 && response.status < 300){
-               console.log("am in if oondition");
+           let response = await fetch(`${url}`)
+
+           if (response.status >= 200 && response.status < 300){
+               let res = await response.json();
                this.setState({
-                 options: jsonData.items.map((item) => ({
-                     title : item.name,
+                   options: res.body.orderType.map((item) => ({
+                     title : item,
                      checked : true
                      })
                      )}
                      );
-               //} else {
-                // let error = res;
-                 //throw error;
+               } else {
+                 throw new Error('Something went wrong');
+                 console.log("Error from server ", response);
+               }
                } catch(error) {
                 console.log("error from server --> ", error);
-                alert("Failed to connect to server");
+                alert("Uh oh !!..Server connection failed");
 
                }
-
       }
 
 
