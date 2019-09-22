@@ -46,6 +46,7 @@ class User {
   }
 
   location(payload){
+    console.log("payload received ", payload)
     this.api("http://35.222.231.249:8080/location", "POST",payload).then((response) => response.json())
     .then((responseJson) => {
       console.log("responseJson",responseJson)

@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import firebase from 'react-native-firebase';
 //import type { Notification } from 'react-native-firebase';
-import {Platform, StyleSheet, Text, View, Alert, AsyncStorage} from 'react-native';
+import {Platform, StyleSheet, Text, View, Alert, AsyncStorage , Linking} from 'react-native';
 import AppContainer from './Navigator';
 import NavigationService from './src/services/NavigationService.js';
 
@@ -51,16 +51,11 @@ export default class App extends Component {
       }
 
     setNotificationData = async (data) =>{
-       console.log("data ret ", data);
        let title = data.title;
        let body = data.body;
        let url = data.partner_url;
        let voucher = data.voucher_code;
-       console.log ("from notification ", voucher);
        NavigationService.navigate('Notification',{ Title : title , Body : body , Coupon : voucher, urlPartner : url});
-
-
-
     }
 
     async createNotificationListeners() {
@@ -76,31 +71,29 @@ export default class App extends Component {
                       .android.setSmallIcon('ic_launcher');
           firebase.notifications().displayNotification(notification);
           firebase.notifications().removeDeliveredNotification(notification._notificationId)
-          console.log("am in notificationlistener")
+          console.log("in notificationlistener")
         }
 
          );
 
         //If your app is in background, you can listen for when a notification is clicked / tapped / opened as follows:
            this.notificationOpenedListener = firebase.notifications().onNotificationOpened(async(notificationOpen) => {
-              const { data } = notificationOpen.notification;
+              const {body,partner_url,title,voucher_code} = notificationOpen.notification._data;
               firebase.notifications().removeDeliveredNotification(notificationOpen.notification._notificationId)
-                console.log("am here in notificationOpenedListener")
-                console.log("notification data in content variable ", data)
-               await this.setNotificationData(data);
-               //alert(data);
+                console.log("in notificationOpenedListener")
+                this.showAlert(body,partner_url,title,voucher_code);
+
            });
 
 
         //If your app is closed, you can check if it was opened by a notification being clicked / tapped / opened as follows:
           const notificationOpen = await firebase.notifications().getInitialNotification();
            if (notificationOpen) {
-               const { data } = notificationOpen.notification;
+               const {body,partner_url,title,voucher_code} = notificationOpen.notification._data;
                console.log("am here in notificationOpen")
-                console.log("notification data in content variable ", data)
-                await this.setNotificationData(data);
-               //alert(data);
-              // this.showAlert(data);
+               this.showAlert(body,partner_url,title,voucher_code);
+
+
            }
            /*
            * Triggered for data only payload in foreground
@@ -112,24 +105,44 @@ export default class App extends Component {
 
     }
 
-    showAlert(title, body) {
-          Alert.alert(
-            title, body,
-            [
-                { text: 'OK', onPress: () => console.log('OK Pressed') },
-            ],
-            { cancelable: false },
-          );
+    showAlert = (body,partner_url,title,voucher_code) => {
+     const titleText = `Click on our partner url ${partner_url}`
+     const titleBody = `Redeem our voucher code ${voucher_code} to get RS 100/- off`
+
+      Alert.alert(
+        titleText, titleBody,
+        [{
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel',
+        },
+            { text: 'OK', onPress: () => this.loadWebViewAgreement(partner_url) },
+        ],
+        { cancelable: false },
+      );
+    }
+
+    loadWebViewAgreement = (partner_url) => {
+      return (
+
+        Linking.canOpenURL(partner_url)
+      .then((supported) => {
+        if (!supported) {
+          console.log("Can't handle url: " + partner_url);
+        } else {
+          return Linking.openURL(partner_url);
         }
+      })
+      .catch((err) => console.error('An error occurred', err))
+
+      )
+    }
+
 
 
   render() {
       return (
-          <AppContainer
-           ref={navigatorRef => {
-                          NavigationService.setTopLevelNavigator(navigatorRef);
-                       }}
-           />
+          <AppContainer />
       );
     }
 

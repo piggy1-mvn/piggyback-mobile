@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Button, View, Text, AsyncStorage, TextInput} from 'react-native';
 import { ActivityIndicator, StatusBar, LoginButton, AccessToken, LoginManager, GraphRequestManager, GraphRequest } from 'react-native-fbsdk';
 import * as config from "../config/Config.js"
-import newUser from './user.js';
 import Home from './HomePage.js';
 import jwt from "jwt-decode";
 import UserService from "../lib/apiUtils.js"

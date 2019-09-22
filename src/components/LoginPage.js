@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, StatusBar, AsyncStorage } from 'react-native';
 import { LoginButton, AccessToken, LoginManager } from 'react-native-fbsdk';
-import newUser from './user.js';
 import HomePage from './HomePage';
 import RegisterPage from './RegisterPage';
 import * as config from "../config/Config.js"

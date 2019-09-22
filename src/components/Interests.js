@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
 import Checkbox from "react-native-modest-checkbox";
 import * as config from "../config/Config.js"
-import NewUser from './user.js'
 
 const jsonData = {
   "items": [
