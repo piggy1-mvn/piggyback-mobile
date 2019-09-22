@@ -4,10 +4,14 @@ import { ActivityIndicator, StatusBar, LoginButton, AccessToken, LoginManager, G
 import * as config from "../config/Config.js"
 import newUser from './user.js';
 import Home from './HomePage.js';
+import jwt from "jwt-decode";
+import UserService from "../lib/apiUtils.js"
 
 
 var fbTokenval : ""
 var regOk : false
+var logOk = false;
+
 const baseUrl = config.baseUrlUserApi;
 
 export default class Fblogin extends Component {
@@ -49,19 +53,23 @@ export default class Fblogin extends Component {
               if (response.status >= 200 && response.status < 300) {
                  let res = await response.json();
                  alert('You have successfully logged in  to PiggyBack !!');
+                 let decoded = await jwt(res.jwttoken)
+                 await AsyncStorage.setItem('user_id', JSON.stringify(decoded.userId));
                  await AsyncStorage.setItem('isLoggedIn', '1');
                  await AsyncStorage.setItem('tokenval', res.jwttoken);
-                 this.props.navigation.navigate('Home');
+                 await AsyncStorage.setItem('user_email', JSON.stringify(decoded.sub));
+                 logOk = true
               } else {
-                 console.log("error from server", response)
                  throw new Error('Something went wrong');
                  alert("Something went wrong");
 
                }
+                   if (logOk = true) {
+                       await this.getUpdateUser();
+                         }
                 } catch(errors) {
                    alert(errors);
                    this.setState({loading : false, getphone : true})
-                    console.log("going to register and check")
                     alert("Please enter your contact to register")
                 }
 
@@ -78,7 +86,7 @@ export default class Fblogin extends Component {
                               //this.setState({fbData : result , getphone : true})
 							  this.setState({fbData : result, loading : true});
 							  this.checkIfExists();
-							  console.log("trigered checkifexists")
+
 
                                }
                                 }
@@ -102,7 +110,6 @@ export default class Fblogin extends Component {
 
 
  facebookLogin = async() => {
-    console.log("in facebook login")
 
     try {
       const result = await LoginManager.logInWithPermissions(["public_profile","email"]);
@@ -127,9 +134,6 @@ export default class Fblogin extends Component {
                 LoginManager.logOut();
                    }
 
-   //shouldComponentUpdate(props, state) {
-     //   return state.getphone == true;
-   // }
 
    render() {
         return (
@@ -152,6 +156,36 @@ export default class Fblogin extends Component {
       );
     }
 
+  getUpdateUser = async () => {
+         let userID = await AsyncStorage.getItem('user_id');
+         tokenvalue = await AsyncStorage.getItem('tokenval');
+         fcmtoken = await AsyncStorage.getItem('fcmToken');
+         UserService.getUserDetails(userID,tokenvalue).then(async (res) => {
+           let id = UserService.getUserId();
+
+           if (res) {
+             res.device_id = fcmtoken
+             return res;
+
+           } else {
+             throw new Error("Token updation failed")
+           }
+         }).then(async (res) => {
+            const checkUpdate = await UserService.UpdateUserDetails(res,tokenvalue);
+            if (checkUpdate == "success"){
+               this.props.navigation.navigate('Home');
+            } else {
+               throw new Error("Updating Token failed")
+              }
+         }).catch((error)=>{
+               alert(error);
+                    });
+
+
+
+      }
+
+
 fbChecklogin = async () => {
     const {fbData} = this.state;
     let fb_id = fbTokenval.userID
@@ -173,15 +207,22 @@ fbChecklogin = async () => {
             if (response.status >= 200 && response.status < 300) {
                let res = await response.json();
                alert('You have successfully logged in  to PiggyBack !!');
+               let decoded = await jwt(res.jwttoken)
+               await AsyncStorage.setItem('user_id', JSON.stringify(decoded.userId));
                await AsyncStorage.setItem('isLoggedIn', '1');
                await AsyncStorage.setItem('tokenval', res.jwttoken);
-               this.props.navigation.navigate('Home');
+               await AsyncStorage.setItem('user_email', JSON.stringify(decoded.sub));
+               logOk = true
+
             } else {
-               console.log("error from server", response)
                throw new Error('Something went wrong');
                alert("Something went wrong");
 
              }
+
+                 if (logOk = true) {
+                   await this.getUpdateUser();
+                         }
               } catch(errors) {
                  alert(errors);
                  this.props.navigation.navigate('Login')
@@ -215,8 +256,6 @@ fbChecklogin = async () => {
 
               if (response.status >= 200 && response.status < 300) {
                  let res = await response.json();
-                 await AsyncStorage.setItem('user_id', JSON.stringify(res.id));
-                 console.log("response for registeration ok")
                  regOk = true
               } else {
                  let error = response;

@@ -51,8 +51,6 @@ export default class RegisterPage extends Component{
 
         if (response.status >= 200 && response.status < 300) {
            let res = await response.json();
-           await AsyncStorage.setItem('user_email', JSON.stringify(res.email));
-           await AsyncStorage.setItem('user_id', JSON.stringify(res.id));
            alert("You have successfully registered !!")
            this.props.navigation.navigate('Login');
         } else {

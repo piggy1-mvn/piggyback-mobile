@@ -59,11 +59,6 @@ export default class App extends Component {
        console.log ("from notification ", voucher);
        NavigationService.navigate('Notification',{ Title : title , Body : body , Coupon : voucher, urlPartner : url});
 
-      //await AsyncStorage.setItem('display', '1');
-      //let asyncdisplayval = await AsyncStorage.getItem('display');
-     // console.log("asyncdisplayval ", asyncdisplayval)
-      //this.setState({notifyData : data , display : true})
-      //console.log("notifyData ", this.state.notifyData);
 
 
     }
@@ -88,10 +83,10 @@ export default class App extends Component {
 
         //If your app is in background, you can listen for when a notification is clicked / tapped / opened as follows:
            this.notificationOpenedListener = firebase.notifications().onNotificationOpened(async(notificationOpen) => {
-               const { data } = notificationOpen.notification;
+              const { data } = notificationOpen.notification;
               firebase.notifications().removeDeliveredNotification(notificationOpen.notification._notificationId)
-              console.log("am here in notificationOpenedListener")
-               console.log("notification data in content variable ", data)
+                console.log("am here in notificationOpenedListener")
+                console.log("notification data in content variable ", data)
                await this.setNotificationData(data);
                //alert(data);
            });

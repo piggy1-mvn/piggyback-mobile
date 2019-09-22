@@ -6,9 +6,11 @@ import HomePage from './HomePage';
 import RegisterPage from './RegisterPage';
 import * as config from "../config/Config.js"
 import Fblogin from './Fblogin.js'
+import jwt from "jwt-decode";
+import UserService from "../lib/apiUtils.js"
 
 const baseUrl = config.baseUrlUserApi;
-console.log("baseurl in login page : ", baseUrl)
+var logOk = false;
 
 export default class LoginPage extends Component{
 
@@ -19,6 +21,35 @@ export default class LoginPage extends Component{
           password : ''
           }
        }
+
+    getUpdateUser = async () => {
+       let userID = await AsyncStorage.getItem('user_id');
+       tokenvalue = await AsyncStorage.getItem('tokenval');
+       fcmtoken = await AsyncStorage.getItem('fcmToken');
+       UserService.getUserDetails(userID,tokenvalue).then(async (res) => {
+         let id = UserService.getUserId();
+         if (res) {
+           res.device_id = fcmtoken
+           return res;
+
+         } else {
+           throw new Error("fToken updation failed")
+         }
+       }).then(async (res) => {
+          const checkUpdate = await UserService.UpdateUserDetails(res,tokenvalue);
+          if (checkUpdate == "success"){
+             this.props.navigation.navigate('Home');
+          } else {
+             throw new Error("fToken updation failed")
+            }
+       }).catch((error)=>{
+             alert(error);
+                  });
+
+
+
+    }
+
 
     checkLogin = async () => {
         let url = baseUrl + 'login'
@@ -35,20 +66,27 @@ export default class LoginPage extends Component{
                                                "user_password" : this.state.password
                                               })
                                            })
-               let res = await response.json();
+
                if (response.status >= 200 && response.status < 300) {
+                  let res = await response.json();
                   alert('You have successfully logged in  to PiggyBack !!');
+                  let decoded = await jwt(res.jwttoken)
+                  await AsyncStorage.setItem('user_id', JSON.stringify(decoded.userId));
                   await AsyncStorage.setItem('isLoggedIn', '1');
                   await AsyncStorage.setItem('tokenval', res.jwttoken);
-                  this.props.navigation.navigate('Home');
+                  await AsyncStorage.setItem('user_email', JSON.stringify(decoded.sub));
+                  logOk = true
                } else {
-                  console.log("error from server", response)
                   throw new Error('Something went wrong');
                   alert("Something went wrong");
                }
+
+               if (logOk = true) {
+                  await this.getUpdateUser();
+
+               }
              } catch(error) {
-               console.log("response failed to server",error);
-               alert("Incorrect password or Email id");
+                alert("Incorrect password or Email id");
              }
 
        }
@@ -77,12 +115,14 @@ export default class LoginPage extends Component{
           <TouchableOpacity style = {styles.buttoncontainer} onPress = {this.checkLogin}>
             <Text style ={styles.buttontext}>Login to Piggy</Text>
           </TouchableOpacity>
+
           <Button
-             style = {styles.buttoncontainer}
-             title = "Register here"
-             color = "#1abc9c"
-             onPress = {() => this.props.navigation.navigate('Register')}
+              style = {styles.buttoncontainer}
+              title = "Register here"
+              color = "#1abc9c"
+              onPress = {() => this.props.navigation.navigate('Register')}
           />
+
            <Fblogin navigation={this.props.navigation}/>
         </View>
        </View>
