@@ -20,7 +20,7 @@ class User {
 
   login(payload) {
     return new Promise((resolve,reject)=>{
-      this.api("http://35.222.231.249:8083/user/login", "POST",payload).then((response) => response.json())
+      this.api("http://108.59.87.44:8083/user/login", "POST",payload).then((response) => response.json())
       .then((responseJson) => {
         this.user = responseJson;
         resolve(responseJson);
@@ -33,7 +33,7 @@ class User {
 
   register(payload){
     return new Promise((resolve,reject)=>{
-      this.api("http://35.222.231.249:8083/user/create", "POST",payload).then(
+      this.api("http://108.59.87.44:8083/user/create", "POST",payload).then(
         (response) => response.json())
       .then((responseJson) => {
         this.user = responseJson;
@@ -47,7 +47,7 @@ class User {
 
   location(payload){
     console.log("payload received ", payload)
-    this.api("http://35.222.231.249:8080/location", "POST",payload).then((response) => response.json())
+    this.api("http://108.59.87.44:8080/location", "POST",payload).then((response) => response.json())
     .then((responseJson) => {
       console.log("responseJson",responseJson)
     })
@@ -58,7 +58,7 @@ class User {
 
   updateInterests(payload){
     return new Promise((resolve,reject)=>{
-      this.api(`http://35.222.231.249:8083/user/interest/${this.user.id}`, "PATCH",payload).then((response) => response.json())
+      this.api(`http://108.59.87.44:8083/user/interest/${this.user.id}`, "PATCH",payload).then((response) => response.json())
       .then((responseJson) => {
         this.user = responseJson;
         resolve('success');
@@ -96,9 +96,9 @@ class User {
 
 
   getUserDetails(userID,tokenvalue) {
-
+    console.log("in getuser detail")
     return new Promise((resolve,reject)=>{
-          this.apiGet(`http://35.222.231.249:8083/user/${userID}`, "GET", tokenvalue).then((response) => response.json())
+          this.apiGet(`http://108.59.87.44:8083/user/${userID}`, "GET", tokenvalue).then((response) => response.json())
           .then((responseJson) => {
             this.user = responseJson;
             resolve(responseJson);
@@ -111,9 +111,9 @@ class User {
    }
 
     UpdateUserDetails(payload,tokenvalue) {
-
+         console.log("in put user detaildd")
           return new Promise((resolve,reject)=>{
-                this.apiPut(`http://35.222.231.249:8083/user/${this.user.id}`, "PUT", payload, tokenvalue).then((response) => response.json())
+                this.apiPut(`http://108.59.87.44:8083/user/${this.user.id}`, "PUT", payload, tokenvalue).then((response) => response.json())
                 .then((responseJson) => {
                   this.user = responseJson;
                   resolve("success");

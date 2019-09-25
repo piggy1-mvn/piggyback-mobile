@@ -25,6 +25,7 @@ export default class LoginPage extends Component{
        let userID = await AsyncStorage.getItem('user_id');
        tokenvalue = await AsyncStorage.getItem('tokenval');
        fcmtoken = await AsyncStorage.getItem('fcmToken');
+       console.log("in getUpdate user")
        UserService.getUserDetails(userID,tokenvalue).then(async (res) => {
          let id = UserService.getUserId();
          if (res) {
@@ -36,6 +37,7 @@ export default class LoginPage extends Component{
          }
        }).then(async (res) => {
           const checkUpdate = await UserService.UpdateUserDetails(res,tokenvalue);
+          console.log("checkupdate value ", checkUpdate)
           if (checkUpdate == "success"){
              this.props.navigation.navigate('Home');
           } else {

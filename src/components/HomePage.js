@@ -72,7 +72,7 @@ export default class HomePage extends Component{
                       //code that will be called every 5 minutes
                       this.getLocation(userId,deviceToken)
                       },
-                      300000);
+                      12000);
              } else {
                console.log('No value returned from storage');
                alert("No userid / device token found")
