@@ -47,7 +47,6 @@ class AuthLoadingScreen extends Component {
     }
 
     loadData = async() => {
-      console.log("in authloadd")
       const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
       this.props.navigation.navigate(isLoggedIn !== '1'? 'LoginNav' : 'AppN' )
 

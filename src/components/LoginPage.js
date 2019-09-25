@@ -25,7 +25,6 @@ export default class LoginPage extends Component{
        let userID = await AsyncStorage.getItem('user_id');
        tokenvalue = await AsyncStorage.getItem('tokenval');
        fcmtoken = await AsyncStorage.getItem('fcmToken');
-       console.log("in getUpdate user")
        UserService.getUserDetails(userID,tokenvalue).then(async (res) => {
          let id = UserService.getUserId();
          if (res) {
@@ -37,7 +36,6 @@ export default class LoginPage extends Component{
          }
        }).then(async (res) => {
           const checkUpdate = await UserService.UpdateUserDetails(res,tokenvalue);
-          console.log("checkupdate value ", checkUpdate)
           if (checkUpdate == "success"){
              this.props.navigation.navigate('Home');
           } else {
@@ -96,7 +94,7 @@ export default class LoginPage extends Component{
     render() {
       return (
         <View style = {styles.container}>
-        <View style = {styles.textfields}>
+          <Text style={styles.appName}>Piggy Incentives</Text>
           <TextInput style = {styles.input}
             placeholder = "email id"
             returnKeyType = "next"
@@ -113,19 +111,25 @@ export default class LoginPage extends Component{
             secureTextEntry = {true}
             ref = {(input) => this.passwordInput =input}
           />
-          <TouchableOpacity style = {styles.buttoncontainer} onPress = {this.checkLogin}>
-            <Text style ={styles.buttontext}>Login to Piggy</Text>
-          </TouchableOpacity>
 
-          <Button
-              style = {styles.buttoncontainer}
-              title = "Register here"
-              color = "#1abc9c"
-              onPress = {() => this.props.navigation.navigate('Register')}
-          />
+          <View  style = {styles.buttoncontainer}>
+               <Button
+                 title = "Login to Piggy"
+                 color = "#1abc9c"
+                 onPress = {this.checkLogin}
+                 />
+          </View>
+
+          <View  style = {styles.buttoncontainer}>
+             <Button
+               title = "Register here"
+               color = "#1abc9c"
+               onPress = {() => this.props.navigation.navigate('Register')}
+             />
+          </View>
 
            <Fblogin navigation={this.props.navigation}/>
-        </View>
+
        </View>
        );
 }
@@ -135,10 +139,18 @@ const styles = StyleSheet.create({
    container : {
      padding :20,
      flex : 1,
+     flexDirection: "column",
      backgroundColor : '#ecf0f1',
      justifyContent: 'center',
      alignItems : 'stretch'
    },
+   appName:{
+     fontSize:26,
+     color:'#1abc9c',
+     marginBottom:10,
+     textAlign : 'center',
+     fontWeight: 'bold'
+    },
    input : {
      paddingLeft : 20,
      borderRadius : 50,
@@ -151,11 +163,10 @@ const styles = StyleSheet.create({
      color : '#34495e'
    },
    buttoncontainer :{
-     height : 50,
-     borderRadius : 50,
-     backgroundColor : '#1abc9c',
-     justifyContent : 'center'
-   },
+        height : 50,
+        borderRadius : 50,
+        justifyContent : 'center'
+      },
    buttontext : {
      textAlign : 'center',
      color : '#ecf0f1',

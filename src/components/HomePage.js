@@ -88,9 +88,6 @@ export default class HomePage extends Component{
       }
 
   getLocation = async (userId,deviceToken) => {
-     // const hasLocationPermission = await this.hasLocationPermission();
-
-      //if (!hasLocationPermission) return;
         Geolocation.getCurrentPosition(
           (position) => {
             const location = JSON.stringify(position);
@@ -106,7 +103,7 @@ export default class HomePage extends Component{
           },
           (error) => {
               console.log(error);
-              console.log("in erro out location")
+
           },
           { enableHighAccuracy: true, timeout: 15000, maximumAge: 0, distanceFilter: 0, forceRequestLocation: true }
         );

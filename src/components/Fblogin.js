@@ -6,10 +6,9 @@ import Home from './HomePage.js';
 import jwt from "jwt-decode";
 import UserService from "../lib/apiUtils.js"
 
-
 var fbTokenval : ""
-var regOk : false
-var logOk = false;
+var regOk : false ;
+var logOk : false;
 
 const baseUrl = config.baseUrlUserApi;
 
@@ -31,46 +30,58 @@ export default class Fblogin extends Component {
 
             };
 
+  apiCall = async (fbData) => {
+	let fb_id = fbTokenval.userID
+    let fbtoken = fbTokenval.accessToken
+
+	try{
+	    let response = await fetch(baseUrl + 'FBUserLogin',{
+
+                                             method: 'POST',
+                                            headers: {
+                                               'Content-Type': 'application/json',
+                                               'Authorization' : fbtoken
+                                                      },
+                                            body: JSON.stringify({
+                                               "fb_user_id" : fb_id,
+                                               "email" : fbData.email
+                                               })
+                                            })
+
+            if (response.status >= 200 && response.status < 300) {
+               let res = await response.json();
+               alert('You have successfully logged in  to PiggyBack !!');
+               let decoded = await jwt(res.jwttoken)
+               await AsyncStorage.setItem('user_id', JSON.stringify(decoded.userId));
+               await AsyncStorage.setItem('isLoggedIn', '1');
+               await AsyncStorage.setItem('tokenval', res.jwttoken);
+               await AsyncStorage.setItem('user_email', JSON.stringify(decoded.sub));
+               logOk = true
+
+            } else {
+               throw new Error('Something went wrong');
+
+
+             }
+             }catch(errors){
+                 console.log("errors ", errors);
+
+             }
+
+
+}
+
   checkIfExists = async () => {
       const {fbData} = this.state;
-      let fb_id = fbTokenval.userID
-      let fbtoken = fbTokenval.accessToken
+      await this.apiCall(fbData);
 
-    try{
-          let response = await fetch(baseUrl + 'FBUserLogin',{
-                                               method: 'POST',
-                                              headers: {
-                                                 'Content-Type': 'application/json',
-                                                 'Authorization' : fbtoken
-                                                        },
-                                              body: JSON.stringify({
-                                                 "fb_user_id" : fb_id,
-                                                 "email" : fbData.email
-                                                 })
-                                              })
+        if (logOk == true) {
+               await this.getUpdateUser();
+         } else {
+		   alert("Please enter your contact to register")
+           this.setState({loading : false, getphone : true})
 
-              if (response.status >= 200 && response.status < 300) {
-                 let res = await response.json();
-                 alert('You have successfully logged in  to PiggyBack !!');
-                 let decoded = await jwt(res.jwttoken)
-                 await AsyncStorage.setItem('user_id', JSON.stringify(decoded.userId));
-                 await AsyncStorage.setItem('isLoggedIn', '1');
-                 await AsyncStorage.setItem('tokenval', res.jwttoken);
-                 await AsyncStorage.setItem('user_email', JSON.stringify(decoded.sub));
-                 logOk = true
-              } else {
-                 throw new Error('Something went wrong');
-                 alert("Something went wrong");
-
-               }
-                   if (logOk = true) {
-                       await this.getUpdateUser();
-                         }
-                } catch(errors) {
-                   alert(errors);
-                   this.setState({loading : false, getphone : true})
-                    alert("Please enter your contact to register")
-                }
+         }
 
 	 }
 
@@ -133,29 +144,7 @@ export default class Fblogin extends Component {
                 LoginManager.logOut();
                    }
 
-
-   render() {
-        return (
-           <View style={{marginTop:20}}>
-            {this.state.getphone == true ?
-               [
-                 <TextInput
-                     placeholder = "enter your phone number"
-                     onChangeText = { (text) => this.setState({mobile_number : text})} />,
-                 <Button title="Submit my contact" onPress={this.sendUpdate} />
-               ]
-               :
-                [
-                  <Button title="Login with FaceBook" onPress={this.facebookLogin} />
-
-                 ]
-                 }
-
-         </View>
-      );
-    }
-
-  getUpdateUser = async () => {
+ getUpdateUser = async () => {
          let userID = await AsyncStorage.getItem('user_id');
          tokenvalue = await AsyncStorage.getItem('tokenval');
          fcmtoken = await AsyncStorage.getItem('fcmToken');
@@ -185,47 +174,23 @@ export default class Fblogin extends Component {
       }
 
 
+
+
 fbChecklogin = async () => {
     const {fbData} = this.state;
-    let fb_id = fbTokenval.userID
-    let fbtoken = fbTokenval.accessToken
+    await this.apiCall(fbData);
 
-  try{
-        let response = await fetch(baseUrl + 'FBUserLogin',{
-                                             method: 'POST',
-                                            headers: {
-                                               'Content-Type': 'application/json',
-                                               'Authorization' : fbtoken
-                                                      },
-                                            body: JSON.stringify({
-                                               "fb_user_id" : fb_id,
-                                               "email" : fbData.email
-                                               })
-                                            })
-
-            if (response.status >= 200 && response.status < 300) {
-               let res = await response.json();
-               alert('You have successfully logged in  to PiggyBack !!');
-               let decoded = await jwt(res.jwttoken)
-               await AsyncStorage.setItem('user_id', JSON.stringify(decoded.userId));
-               await AsyncStorage.setItem('isLoggedIn', '1');
-               await AsyncStorage.setItem('tokenval', res.jwttoken);
-               await AsyncStorage.setItem('user_email', JSON.stringify(decoded.sub));
-               logOk = true
-
+    try{
+	       if (logOk = true){
+	       await this.getUpdateUser();
             } else {
-               throw new Error('Something went wrong');
-               alert("Something went wrong");
+            throw new Error("Failed to Login")
+            this.props.navigation.navigate('Login')
+           }
+	} catch (error) {
+		alert("Something went wrong !!")
 
-             }
-
-                 if (logOk = true) {
-                   await this.getUpdateUser();
-                         }
-              } catch(errors) {
-                 alert(errors);
-                 this.props.navigation.navigate('Login')
-              }
+	}
 
 
 }
@@ -268,8 +233,28 @@ fbChecklogin = async () => {
                alert(errors);
             }
     }
+
+
+   render() {
+        return (
+           <View style={{marginTop:20}}>
+            {this.state.getphone == true ?
+               [
+                 <TextInput key = "number"
+                     placeholder = "enter your phone number"
+                     onChangeText = { (text) => this.setState({mobile_number : text})} />,
+                 <Button key = "contact" title="Submit my contact" onPress={this.sendUpdate} />
+               ]
+               :
+                [
+                  <Button key = "login" title="Login with FaceBook" onPress={this.facebookLogin} />
+
+                 ]
+                 }
+
+         </View>
+      );
+    }
+
+
 };
-
-
-
-
