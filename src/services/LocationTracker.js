@@ -3,6 +3,7 @@ import { Button,PermissionsAndroid,Platform,StyleSheet,Text,ToastAndroid,View,As
 import Geolocation from 'react-native-geolocation-service';
 import styles from '../styles/style.js';
 import * as config from "../config/Config.js"
+import BackgroundTimer from 'react-native-background-timer';
 
 var value;
 var deviceToken : ""
@@ -79,9 +80,9 @@ export default class LocationTracker extends Component<{}> {
 
 
   getLocation = async () => {
-    const hasLocationPermission = await this.hasLocationPermission();
+   // const hasLocationPermission = await this.hasLocationPermission();
 
-    if (!hasLocationPermission) return;
+    //if (!hasLocationPermission) return;
 
     this.setState({ loading: true }, () => {
       Geolocation.getCurrentPosition(
@@ -93,7 +94,7 @@ export default class LocationTracker extends Component<{}> {
           this.setState({ location: error, loading: false });
           console.log(error);
         },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000, distanceFilter: 50, forceRequestLocation: true }
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0, distanceFilter: 0, forceRequestLocation: true }
       );
     });
   }
@@ -115,6 +116,17 @@ export default class LocationTracker extends Component<{}> {
       );
     });
   }
+
+  getLocationUpdatesNow = async () => {
+      const hasLocationPermission = await this.hasLocationPermission();
+      if (!hasLocationPermission) return;
+      this.setState({ updatesEnabled: true });
+         BackgroundTimer.runBackgroundTimer(() => {
+          //code that will be called every 3 seconds
+        this.getLocation()},12000);
+
+
+    }
 
   removeLocationUpdates = () => {
       if (this.watchId !== null) {
@@ -165,7 +177,7 @@ export default class LocationTracker extends Component<{}> {
      return (
       <View style={styles.container}>
         <View style={styles.buttons}>
-            <Button title='Allow Location Tracking' onPress={this.getLocationUpdates} />
+            <Button title='Allow Location Tracking' onPress={this.getLocationUpdatesNow} />
         </View>
       </View>
     );

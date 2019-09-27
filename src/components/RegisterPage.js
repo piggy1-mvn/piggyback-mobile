@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
-import newUser from './user.js';
 import HomePage from './HomePage.js';
 import LoginPage from './LoginPage.js';
 import * as config from "../config/Config.js";
@@ -48,14 +47,15 @@ export default class RegisterPage extends Component{
                                        "device_id":deviceT
                                        })
                                     })
-        let res = await response.json();
+
         if (response.status >= 200 && response.status < 300) {
-           await AsyncStorage.setItem('user_email', JSON.stringify(res.email));
-           await AsyncStorage.setItem('user_id', JSON.stringify(res.id));
+           let res = await response.json();
+           alert("You have successfully registered !!")
            this.props.navigation.navigate('Login');
         } else {
-           let error = res;
-           throw error;
+           throw new Error('Something went wrong');
+           alert("Something went wrong");
+
         }
       } catch(errors) {
         this.setState({errors: errors});
@@ -103,6 +103,7 @@ export default class RegisterPage extends Component{
 
            <TextInput style = {styles.input}
             placeholder = "enter your password "
+            secureTextEntry = {true}
             returnKeyType = "next"
             onChangeText = { (text) => this.setState({confirm_password : text})}
             onSubmitEditing = {() => this.confirmpasswordInput.focus()}
@@ -111,6 +112,7 @@ export default class RegisterPage extends Component{
 
             <TextInput style = {styles.input}
              placeholder = "enter your confirm password "
+             secureTextEntry = {true}
              returnKeyType = "go"
              onChangeText = { (text) => this.setState({user_password : text})}
              ref = {(input) => this.confirmpasswordInput =input}
