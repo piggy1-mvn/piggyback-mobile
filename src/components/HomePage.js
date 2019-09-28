@@ -59,20 +59,21 @@ export default class HomePage extends Component{
 
        try {
            const deviceToken = await AsyncStorage.getItem('fcmToken');
-           const userId = await AsyncStorage.getItem('user_id');
 
-           if (userId !== null) {
+           if (deviceToken !== null) {
                // We have data!!
-              //this.setState({ userid : Number(value) });
+              let userId = await AsyncStorage.getItem('user_id');
               console.log("userid from async ", userId);
-              //userId = Number(userId);
-              console.log("userid convert ", userId)
+              console.log("devicetoken from async ", deviceToken);
+
               this.getLocation(userId,deviceToken);
-               BackgroundTimer.runBackgroundTimer(() => {
+               BackgroundTimer.runBackgroundTimer(async() => {
                       //code that will be called every 5 minutes
+                      let userId = await AsyncStorage.getItem('user_id');
+                      console.log("userid in background timer ", userId)
                       this.getLocation(userId,deviceToken)
                       },
-                      12000);
+                      20000);
              } else {
                console.log('No value returned from storage');
                alert("No userid / device token found")
