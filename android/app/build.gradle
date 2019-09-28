@@ -1,6 +1,4 @@
 apply plugin: "com.android.application"
-//apply plugin: "com.google.firebase.firebase-perf"
-//apply plugin: 'io.fabric'
 
 import com.android.build.OutputFile
 
@@ -133,8 +131,8 @@ android {
         applicationId "com.piggyback_mobile"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "2.0"
 
         multiDexEnabled true
     }

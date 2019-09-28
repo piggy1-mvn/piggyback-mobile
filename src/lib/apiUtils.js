@@ -55,7 +55,7 @@ class User {
 
   location(payload){
     let baseUrl = config.baseUrlLocationApi;
-
+    console.log("payload ", payload)
     this.api(`${baseUrl}`, "POST",payload).then((response) => response.json())
     .then((responseJson) => {
       console.log("responseJson",responseJson)
