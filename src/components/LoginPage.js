@@ -6,7 +6,8 @@ import RegisterPage from './RegisterPage';
 import * as config from "../config/Config.js"
 import Fblogin from './Fblogin.js'
 import jwt from "jwt-decode";
-import UserService from "../lib/apiUtils.js"
+import UserService from "../lib/apiUtils.js";
+import RNSecureKeyStore, {ACCESSIBLE} from "react-native-secure-key-store";
 
 const baseUrl = config.baseUrlUserApi;
 var logOk = false;
@@ -22,9 +23,9 @@ export default class LoginPage extends Component{
        }
 
     getUpdateUser = async () => {
-       let userID = await AsyncStorage.getItem('user_id');
-       tokenvalue = await AsyncStorage.getItem('tokenval');
-       fcmtoken = await AsyncStorage.getItem('fcmToken');
+       let userID = await RNSecureKeyStore.get("user_id")
+       tokenvalue = await RNSecureKeyStore.get('tokenval');
+       fcmtoken = await RNSecureKeyStore.get('fcmToken');
        UserService.getUserDetails(userID,tokenvalue).then(async (res) => {
          let id = UserService.getUserId();
          if (res) {
@@ -32,14 +33,14 @@ export default class LoginPage extends Component{
            return res;
 
          } else {
-           throw new Error("fToken updation failed")
+           throw new Error("Updating device token failed")
          }
        }).then(async (res) => {
           const checkUpdate = await UserService.UpdateUserDetails(res,tokenvalue);
           if (checkUpdate == "success"){
              this.props.navigation.navigate('Home');
           } else {
-             throw new Error("fToken updation failed")
+             throw new Error("Updating device token failed")
             }
        }).catch((error)=>{
              alert(error);
@@ -51,6 +52,10 @@ export default class LoginPage extends Component{
 
 
     checkLogin = async () => {
+        await UserService.checkRooted();
+        let checkroot = UserService.getRootCheck();
+        console.log("checkroot value ", checkroot);
+        if (checkroot !== 'fail') {
         let url = baseUrl + 'login'
 
         try{
@@ -68,12 +73,15 @@ export default class LoginPage extends Component{
 
                if (response.status >= 200 && response.status < 300) {
                   let res = await response.json();
+                  console.log("respone from server from login ", res);
                   alert('You have successfully logged in  to PiggyBack !!');
-                  let decoded = await jwt(res.jwttoken)
-                  await AsyncStorage.setItem('user_id', JSON.stringify(decoded.userId));
-                  await AsyncStorage.setItem('isLoggedIn', '1');
-                  await AsyncStorage.setItem('tokenval', res.jwttoken);
-                  await AsyncStorage.setItem('user_email', JSON.stringify(decoded.sub));
+                  let decoded = await jwt(res.jwttoken);
+                  console.log("decoded jwt ", decoded);
+                  await RNSecureKeyStore.set('isLoggedIn', '1', {accessible: ACCESSIBLE.ALWAYS_THIS_DEVICE_ONLY});
+                  await RNSecureKeyStore.set("user_id", JSON.stringify(decoded.userId),{accessible: ACCESSIBLE.ALWAYS_THIS_DEVICE_ONLY});
+                  await RNSecureKeyStore.set("tokenval", res.jwttoken,{accessible: ACCESSIBLE.ALWAYS_THIS_DEVICE_ONLY});
+
+
                   logOk = true
                } else {
                   throw new Error('Something went wrong');
@@ -85,7 +93,11 @@ export default class LoginPage extends Component{
 
                }
              } catch(error) {
+                console.log("error upo login ", error);
                 alert("Incorrect password or Email id");
+             }
+             } else {
+              alert("YOUR DEVICE IS ROOTED !!!")
              }
 
        }

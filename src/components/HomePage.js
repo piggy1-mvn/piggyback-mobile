@@ -6,6 +6,7 @@ import { createStackNavigator, createAppContainer } from 'react-navigation';
 import User from "../lib/apiUtils.js"
 import BackgroundTimer from 'react-native-background-timer';
 import Geolocation from 'react-native-geolocation-service';
+import RNSecureKeyStore, {ACCESSIBLE} from "react-native-secure-key-store";
 
 export default class HomePage extends Component{
      constructor(props){
@@ -58,18 +59,18 @@ export default class HomePage extends Component{
        if (!hasLocationPermission) return;
 
        try {
-           const deviceToken = await AsyncStorage.getItem('fcmToken');
+           const deviceToken = await RNSecureKeyStore.get('fcmToken')
 
            if (deviceToken !== null) {
                // We have data!!
-              let userId = await AsyncStorage.getItem('user_id');
+              let userId = await RNSecureKeyStore.get('user_id')
               console.log("userid from async ", userId);
               console.log("devicetoken from async ", deviceToken);
 
               this.getLocation(userId,deviceToken);
                BackgroundTimer.runBackgroundTimer(async() => {
                       //code that will be called every 5 minutes
-                      let userId = await AsyncStorage.getItem('user_id');
+                      let userId = await RNSecureKeyStore.get('user_id');
                       console.log("userid in background timer ", userId)
                       this.getLocation(userId,deviceToken)
                       },
@@ -131,8 +132,11 @@ export default class HomePage extends Component{
 
   logout = async () => {
     //await AsyncStorage.clear();
-    await AsyncStorage.removeItem('tokenval');
-    await AsyncStorage.removeItem('isLoggedIn');
+    //await AsyncStorage.removeItem('tokenval');
+    //await AsyncStorage.removeItem('isLoggedIn');
+    await RNSecureKeyStore.remove('tokenval');
+    await RNSecureKeyStore.remove('isLoggedIn');
+    await RNSecureKeyStore.remove('user_id');
     if (AccessToken.getCurrentAccessToken){
                     LoginManager.logOut();
                     }

@@ -1,8 +1,10 @@
-import * as config from "../config/Config.js"
+import * as config from "../config/Config.js";
+import RNGoogleSafetyNet from 'react-native-google-safetynet';
 
 class User {
   constructor() {
     this.user = [];
+    this.root = "pass";
   }
 
   api(url, method, body) {
@@ -19,6 +21,10 @@ class User {
   getUserId(){
     return this.user.id
   }
+
+  getRootCheck(){
+      return this.root
+    }
 
   login(payload) {
     let baseUrl = config.baseUrlUserApi;
@@ -136,6 +142,29 @@ class User {
                 });
               })
          }
+
+
+  async checkRooted(){
+      const nonceval = await RNGoogleSafetyNet.generateNonce(32);
+      console.log("nonceval ", nonceval);
+      await RNGoogleSafetyNet.sendAttestationRequest(nonceval,'AIzaSyBoB7Q9K6aeVErvAVwQzgpYcZBfuIOXT8k').then((resp) => {
+                 console.log("resp with api key ", resp)
+                 console.log("basicIntegrity : ", resp.basicIntegrity);
+                 console.log("ctsProfileMatch : ", resp.ctsProfileMatch);
+                 let rootCheck = "pass"
+                 if (resp.basicIntegrity == false){
+                   AsyncStorage.setItem('rooted', '1');
+                   //alert("YOUR DEVICE IS ROOTED !!!!")
+                   console.log("omggggg");
+                   this.root = "fail";
+                   console.log("vakue of rootecheck ", rootCheck);
+                   }
+                   console.log("vakue of rootecheck ", rootCheck);
+
+               })
+
+
+    }
 
 
   }

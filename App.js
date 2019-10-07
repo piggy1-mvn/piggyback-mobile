@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import firebase from 'react-native-firebase';
-//import type { Notification } from 'react-native-firebase';
-import {Platform, StyleSheet, Text, View, Alert, AsyncStorage , Linking} from 'react-native';
+import {Platform, StyleSheet, Text, View, Alert, AsyncStorage , Linking, Button} from 'react-native';
 import AppContainer from './Navigator';
 import NavigationService from './src/services/NavigationService.js';
+import RNSecureKeyStore, {ACCESSIBLE} from "react-native-secure-key-store";
 
 var shouldDisplay : false ;
 
@@ -14,6 +14,8 @@ export default class App extends Component {
     this.createNotificationListeners();
 
   }
+
+
 
   async checkPermission() {
       const enabled = await firebase.messaging().hasPermission();
@@ -36,19 +38,21 @@ export default class App extends Component {
       }
 
     async getToken() {
-        let fcmToken = await AsyncStorage.getItem('fcmToken');
-        if (!fcmToken) {
-          fcmToken = await firebase.messaging().getToken();
-          if (fcmToken) {
-            // user has a device token
-            await AsyncStorage.setItem('fcmToken', fcmToken);
+        let fcmToken = "";
+        try{
+           fcmToken = await RNSecureKeyStore.get('fcmToken');
+           } catch (error){
+              if (!fcmToken) {
+                fcmToken = await firebase.messaging().getToken();
+                if (fcmToken) {
+                  // user has a device token
+                 await RNSecureKeyStore.set("fcmToken", fcmToken, {accessible: ACCESSIBLE.ALWAYS_THIS_DEVICE_ONLY})
+                      }
+               }
+           }
 
-          }
-        }
-
-        console.log("fcm token ", fcmToken);
-
-      }
+       console.log("fcm token ", fcmToken);
+     }
 
     setNotificationData = async (data) =>{
        let title = data.title;
@@ -107,7 +111,7 @@ export default class App extends Component {
 
     showAlert = (body,partner_url,title,voucher_code) => {
      const titleText = `Click on our partner url ${partner_url}`
-     const titleBody = `Redeem our voucher code ${voucher_code} to get RS 100/- off`
+     const titleBody = `Redeem our voucher code ${voucher_code} to get 100 SGD off`
 
       Alert.alert(
         titleText, titleBody,
@@ -142,15 +146,11 @@ export default class App extends Component {
 
   render() {
       return (
-          <AppContainer />
-      );
+                <AppContainer />
+
+            );
     }
 
-
-  //omponentDidUpdate(prevProps, prevState){
-    //   console.log("in component did update")
-
-     //}
 
   componentWillUnmount() {
       this.notificationListener;

@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
 import Checkbox from "react-native-modest-checkbox";
-import * as config from "../config/Config.js"
+import * as config from "../config/Config.js";
+import RNSecureKeyStore, {ACCESSIBLE} from "react-native-secure-key-store";
+import UserService from "../lib/apiUtils.js";
 
 const jsonData = {
   "items": [
@@ -58,8 +60,8 @@ export default class Interests extends Component{
    async componentDidMount(){
        this.getOptions();
        try {
-               const value = await AsyncStorage.getItem('user_id');
-               tokenvalue = await AsyncStorage.getItem('tokenval');
+               const value = await RNSecureKeyStore.get('user_id');
+               tokenvalue = await RNSecureKeyStore.get('tokenval');
                if (value !== null && tokenvalue !== null) {
                     this.setState({ userid : Number(value) });
                   } else {
@@ -81,7 +83,10 @@ export default class Interests extends Component{
 
 
      updateInterests = async () => {
-
+        await UserService.checkRooted();
+        let checkroot = UserService.getRootCheck();
+        console.log("checkroot value ", checkroot);
+        if (checkroot !== 'fail') {
         let interests = this.state.options.filter(item =>item.checked).map((item=>item.title));
         let url = baseUserUrl + 'interest/'
 
@@ -110,6 +115,9 @@ export default class Interests extends Component{
 
                     }
 
+                } else {
+                  alert("YOUR DEVICE IS ROOTED !!!")
+                }
                 }
 
 
