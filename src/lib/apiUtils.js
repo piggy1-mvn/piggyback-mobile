@@ -147,7 +147,7 @@ class User {
   async checkRooted(){
       const nonceval = await RNGoogleSafetyNet.generateNonce(32);
       console.log("nonceval ", nonceval);
-      await RNGoogleSafetyNet.sendAttestationRequest(nonceval,'AIzaSyBoB7Q9K6aeVErvAVwQzgpYcZBfuIOXT8k').then((resp) => {
+      await RNGoogleSafetyNet.sendAttestationRequest(nonceval,'').then((resp) => {
                  console.log("resp with api key ", resp)
                  console.log("basicIntegrity : ", resp.basicIntegrity);
                  console.log("ctsProfileMatch : ", resp.ctsProfileMatch);
