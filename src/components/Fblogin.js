@@ -152,11 +152,13 @@ export default class Fblogin extends Component {
           let userID = await RNSecureKeyStore.get("user_id");
           tokenvalue = await RNSecureKeyStore.get('tokenval');
           fcmtoken = await RNSecureKeyStore.get('fcmToken');
+          rsaPub = await RNSecureKeyStore.get('RSApublic');
          UserService.getUserDetails(userID,tokenvalue).then(async (res) => {
            let id = UserService.getUserId();
 
            if (res) {
              res.device_id = fcmtoken
+             res.user_rsa = rsaPub
              return res;
 
            } else {

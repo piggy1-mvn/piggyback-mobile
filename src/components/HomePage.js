@@ -136,7 +136,7 @@ export default class HomePage extends Component{
     //await AsyncStorage.removeItem('isLoggedIn');
     await RNSecureKeyStore.remove('tokenval');
     await RNSecureKeyStore.remove('isLoggedIn');
-    await RNSecureKeyStore.remove('user_id');
+   // await RNSecureKeyStore.remove('user_id');
     if (AccessToken.getCurrentAccessToken){
                     LoginManager.logOut();
                     }

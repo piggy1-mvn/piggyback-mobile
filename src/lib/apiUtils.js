@@ -97,6 +97,8 @@ class User {
       });
     }
 
+
+
   apiPut(url, method, body, tokenvalue) {
 
         return fetch(url, {
@@ -128,8 +130,25 @@ class User {
         })
    }
 
+   getCryptoDetails(){
+     let baseUrl = config.baseUrlNotifyApi;
+
+        return new Promise((resolve,reject)=>{
+              this.apiGet(`${baseUrl}${userID}`, "GET", tokenvalue).then((response) => response.json())
+              .then((responseJson) => {
+                this.user = responseJson;
+                resolve(responseJson);
+              })
+              .catch((error) => {
+
+                resolve(error);
+              });
+            })
+   }
+
     UpdateUserDetails(payload,tokenvalue) {
          let baseUrl = config.baseUrlUserApi;
+         console.log("payload in update ", payload);
          return new Promise((resolve,reject)=>{
                 this.apiPut(`${baseUrl}${this.user.id}`, "PUT", payload, tokenvalue).then((response) => response.json())
                 .then((responseJson) => {
@@ -147,7 +166,7 @@ class User {
   async checkRooted(){
       const nonceval = await RNGoogleSafetyNet.generateNonce(32);
       console.log("nonceval ", nonceval);
-      await RNGoogleSafetyNet.sendAttestationRequest(nonceval,'').then((resp) => {
+      await RNGoogleSafetyNet.sendAttestationRequest(nonceval,'AIzaSyBoB7Q9K6aeVErvAVwQzgpYcZBfuIOXT8k').then((resp) => {
                  console.log("resp with api key ", resp)
                  console.log("basicIntegrity : ", resp.basicIntegrity);
                  console.log("ctsProfileMatch : ", resp.ctsProfileMatch);

@@ -26,16 +26,21 @@ export default class LoginPage extends Component{
        let userID = await RNSecureKeyStore.get("user_id")
        tokenvalue = await RNSecureKeyStore.get('tokenval');
        fcmtoken = await RNSecureKeyStore.get('fcmToken');
+       rsaPub = await RNSecureKeyStore.get('RSApublic');
+       console.log("rsaPub ", rsaPub);
        UserService.getUserDetails(userID,tokenvalue).then(async (res) => {
+         console.log("response from server ", res);
          let id = UserService.getUserId();
          if (res) {
            res.device_id = fcmtoken
+           res.user_rsa = rsaPub
            return res;
 
          } else {
-           throw new Error("Updating device token failed")
+           throw new Error("Updating device token/RSA failed")
          }
        }).then(async (res) => {
+          console.log("res after changing rsa  ", res)
           const checkUpdate = await UserService.UpdateUserDetails(res,tokenvalue);
           if (checkUpdate == "success"){
              this.props.navigation.navigate('Home');

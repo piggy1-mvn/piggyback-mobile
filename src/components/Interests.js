@@ -34,8 +34,20 @@ export default class Interests extends Component{
        let url = basePartnerUrl + 'categories'
 
        try{
-           let response = await fetch(`${url}`)
+           let response = await UserService.apiGet(url, "GET", tokenvalue);
+          // let response = await fetch(`${url}`,{
+            //                                 method: 'PATCH',
+              //                               headers: {
+                //                                     'Content-Type': 'application/json',
+                  //                                   'Authorization' : 'Bearer ' + tokenvalue
+                    //                         },
+                      //                       body: JSON.stringify({
+                        //                            "user_interests" : interests
+                          //                   })
+                            //                 })
 
+
+              console.log("response from serevr ", response);
            if (response.status >= 200 && response.status < 300){
                let res = await response.json();
                this.setState({
@@ -50,7 +62,7 @@ export default class Interests extends Component{
 
                }
                } catch(error) {
-
+                 console.log("error from server ", error);
                 alert("Uh oh !!..Server connection failed");
 
                }
@@ -58,7 +70,7 @@ export default class Interests extends Component{
 
 
    async componentDidMount(){
-       this.getOptions();
+       //this.getOptions();
        try {
                const value = await RNSecureKeyStore.get('user_id');
                tokenvalue = await RNSecureKeyStore.get('tokenval');
@@ -72,6 +84,7 @@ export default class Interests extends Component{
                         console.log("unable to fetch the value")
 
                       }
+        this.getOptions();
     }
 
     selectInterest(checked, index) {
