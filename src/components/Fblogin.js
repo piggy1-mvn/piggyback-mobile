@@ -4,7 +4,8 @@ import { ActivityIndicator, StatusBar, LoginButton, AccessToken, LoginManager, G
 import * as config from "../config/Config.js"
 import Home from './HomePage.js';
 import jwt from "jwt-decode";
-import UserService from "../lib/apiUtils.js"
+import UserService from "../lib/apiUtils.js";
+import RNSecureKeyStore, {ACCESSIBLE} from "react-native-secure-key-store";
 
 var fbTokenval : ""
 var regOk : false ;
@@ -51,17 +52,14 @@ export default class Fblogin extends Component {
             if (response.status >= 200 && response.status < 300) {
                let res = await response.json();
                alert('You have successfully logged in  to PiggyBack !!');
-               let decoded = await jwt(res.jwttoken)
-               await AsyncStorage.setItem('user_id', JSON.stringify(decoded.userId));
-               await AsyncStorage.setItem('isLoggedIn', '1');
-               await AsyncStorage.setItem('tokenval', res.jwttoken);
-               await AsyncStorage.setItem('user_email', JSON.stringify(decoded.sub));
+               let decoded = await jwt(res.jwttoken);
+               await RNSecureKeyStore.set("user_id", JSON.stringify(decoded.userId),{accessible: ACCESSIBLE.ALWAYS_THIS_DEVICE_ONLY})
+               await RNSecureKeyStore.set("tokenval", res.jwttoken,{accessible: ACCESSIBLE.ALWAYS_THIS_DEVICE_ONLY});
+               await RNSecureKeyStore.set('isLoggedIn', '1', {accessible: ACCESSIBLE.ALWAYS_THIS_DEVICE_ONLY});
                logOk = true
 
             } else {
                throw new Error('Something went wrong');
-
-
              }
              }catch(errors){
                  console.log("errors ", errors);
@@ -93,8 +91,7 @@ export default class Fblogin extends Component {
                                alert('Error fetching data ' + error.toString());
                              } else {
                               alert('Success fetching data: ' + result.toString());
-                              //this.setState({fbData : result , getphone : true})
-							  this.setState({fbData : result, loading : true});
+                           	  this.setState({fbData : result, loading : true});
 							  this.checkIfExists();
 
 
@@ -120,21 +117,28 @@ export default class Fblogin extends Component {
 
 
  facebookLogin = async() => {
+     await UserService.checkRooted();
+     let checkroot = UserService.getRootCheck();
+     console.log("checkroot value ", checkroot);
+     if (checkroot !== 'fail') {
 
-    try {
-      const result = await LoginManager.logInWithPermissions(["public_profile","email"]);
+          try {
+              const result = await LoginManager.logInWithPermissions(["public_profile","email"]);
 
-       if (result.isCancelled)  {
-         throw new Error("User cancelled the request");
+            if (result.isCancelled)  {
+                   throw new Error("User cancelled the request");
 
-       }
+                 }
 
-        alert("Permissions granted to user : ", result.grantedPermissions);
-        let pure = await this.isInRelationship();
+              alert("Permissions granted to user : ", result.grantedPermissions);
+                  let pure = await this.isInRelationship();
 
-    } catch (e) {
-        console.log("error", e);
-        }
+             } catch (e) {
+              console.log("error", e);
+         }
+         }else {
+                 alert("YOUR DEVICE IS ROOTED !!!")
+         }
  }
 
 
@@ -145,18 +149,20 @@ export default class Fblogin extends Component {
                    }
 
  getUpdateUser = async () => {
-         let userID = await AsyncStorage.getItem('user_id');
-         tokenvalue = await AsyncStorage.getItem('tokenval');
-         fcmtoken = await AsyncStorage.getItem('fcmToken');
+          let userID = await RNSecureKeyStore.get("user_id");
+          tokenvalue = await RNSecureKeyStore.get('tokenval');
+          fcmtoken = await RNSecureKeyStore.get('fcmToken');
+          rsaPub = await RNSecureKeyStore.get('RSApublic');
          UserService.getUserDetails(userID,tokenvalue).then(async (res) => {
            let id = UserService.getUserId();
 
            if (res) {
              res.device_id = fcmtoken
+             res.user_rsa = rsaPub
              return res;
 
            } else {
-             throw new Error("Token updation failed")
+             throw new Error("Updating device token failed")
            }
          }).then(async (res) => {
             const checkUpdate = await UserService.UpdateUserDetails(res,tokenvalue);
@@ -197,7 +203,7 @@ fbChecklogin = async () => {
 
 
  sendUpdate = async () => {
-          let deviceT = await AsyncStorage.getItem('fcmToken');
+          let deviceT = await RNSecureKeyStore.get('fcmToken');
           const {fbData} = this.state;
           try{
                let response = await fetch(baseUrl + 'create',{

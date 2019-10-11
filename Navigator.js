@@ -9,6 +9,7 @@ import LocationTracker from './src/services/LocationTracker.js';
 import Interests from './src/components/Interests.js';
 import Fblogin from './src/components/Fblogin.js';
 import NotificationPage from './src/components/NotificationPage.js';
+import RNSecureKeyStore, {ACCESSIBLE} from "react-native-secure-key-store";;
 
 const AppNavigator = createStackNavigator ({
     Home : HomePage,
@@ -47,10 +48,15 @@ class AuthLoadingScreen extends Component {
     }
 
     loadData = async() => {
-      const isLoggedIn = await AsyncStorage.getItem('isLoggedIn');
-      this.props.navigation.navigate(isLoggedIn !== '1'? 'LoginNav' : 'AppN' )
-
-    }
+      console.log(" in load data");
+      try{
+           const isLoggedIn = await RNSecureKeyStore.get('isLoggedIn');
+           this.props.navigation.navigate(isLoggedIn !== '1'? 'LoginNav' : 'AppN' )
+           } catch (error){
+             console.log("error in logged invalue  ", error)
+             this.props.navigation.navigate('LoginNav');
+           }
+     }
 
     render() {
       return(

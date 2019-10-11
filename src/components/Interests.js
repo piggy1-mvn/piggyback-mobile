@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStorage } from 'react-native';
 import Checkbox from "react-native-modest-checkbox";
-import * as config from "../config/Config.js"
+import * as config from "../config/Config.js";
+import RNSecureKeyStore, {ACCESSIBLE} from "react-native-secure-key-store";
+import UserService from "../lib/apiUtils.js";
 
 const jsonData = {
   "items": [
@@ -32,8 +34,20 @@ export default class Interests extends Component{
        let url = basePartnerUrl + 'categories'
 
        try{
-           let response = await fetch(`${url}`)
+           let response = await UserService.apiGet(url, "GET", tokenvalue);
+          // let response = await fetch(`${url}`,{
+            //                                 method: 'PATCH',
+              //                               headers: {
+                //                                     'Content-Type': 'application/json',
+                  //                                   'Authorization' : 'Bearer ' + tokenvalue
+                    //                         },
+                      //                       body: JSON.stringify({
+                        //                            "user_interests" : interests
+                          //                   })
+                            //                 })
 
+
+              console.log("response from serevr ", response);
            if (response.status >= 200 && response.status < 300){
                let res = await response.json();
                this.setState({
@@ -48,7 +62,7 @@ export default class Interests extends Component{
 
                }
                } catch(error) {
-
+                 console.log("error from server ", error);
                 alert("Uh oh !!..Server connection failed");
 
                }
@@ -56,10 +70,10 @@ export default class Interests extends Component{
 
 
    async componentDidMount(){
-       this.getOptions();
+       //this.getOptions();
        try {
-               const value = await AsyncStorage.getItem('user_id');
-               tokenvalue = await AsyncStorage.getItem('tokenval');
+               const value = await RNSecureKeyStore.get('user_id');
+               tokenvalue = await RNSecureKeyStore.get('tokenval');
                if (value !== null && tokenvalue !== null) {
                     this.setState({ userid : Number(value) });
                   } else {
@@ -70,6 +84,7 @@ export default class Interests extends Component{
                         console.log("unable to fetch the value")
 
                       }
+        this.getOptions();
     }
 
     selectInterest(checked, index) {
@@ -81,7 +96,10 @@ export default class Interests extends Component{
 
 
      updateInterests = async () => {
-
+        await UserService.checkRooted();
+        let checkroot = UserService.getRootCheck();
+        console.log("checkroot value ", checkroot);
+        if (checkroot !== 'fail') {
         let interests = this.state.options.filter(item =>item.checked).map((item=>item.title));
         let url = baseUserUrl + 'interest/'
 
@@ -110,6 +128,9 @@ export default class Interests extends Component{
 
                     }
 
+                } else {
+                  alert("YOUR DEVICE IS ROOTED !!!")
+                }
                 }
 
 

@@ -8,6 +8,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "crypto-js": "^3.1.9-1",
     "jwt-decode": "^2.2.0",
     "react": "16.8.6",
     "react-native": "0.60.5",
@@ -17,9 +18,13 @@
     "react-native-firebase": "~5.5.6",
     "react-native-geolocation-service": "^3.0.0",
     "react-native-gesture-handler": "^1.4.1",
+    "react-native-google-safetynet": "^1.0.0",
     "react-native-modest-checkbox": "^3.3.0",
     "react-native-reanimated": "^1.2.0",
+    "react-native-rsa-native": "^1.1.2",
     "react-native-screens": "^2.0.0-alpha.1",
+    "react-native-secure-key-store": "^2.0.5",
+    "react-native-securerandom": "^1.0.0-rc.0",
     "react-navigation": "^4.0.0",
     "react-navigation-stack": "^1.5.3"
   },

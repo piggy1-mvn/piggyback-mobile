@@ -3,6 +3,8 @@ import { Button, View, Text, TextInput, TouchableOpacity, StyleSheet, AsyncStora
 import HomePage from './HomePage.js';
 import LoginPage from './LoginPage.js';
 import * as config from "../config/Config.js";
+import RNSecureKeyStore, {ACCESSIBLE} from "react-native-secure-key-store";
+import UserService from "../lib/apiUtils.js";
 
 const baseUrl = config.baseUrlUserApi;
 
@@ -27,10 +29,14 @@ export default class RegisterPage extends Component{
 
 
     onRegisterPressed = async () => {
-      let deviceT = await AsyncStorage.getItem('fcmToken');
-      let url = baseUrl + 'create'
-      try{
-         let response = await fetch(`${url}`,{
+      await UserService.checkRooted();
+      let checkroot = UserService.getRootCheck();
+      console.log("checkroot value ", checkroot);
+      if (checkroot !== 'fail') {
+          let deviceT = await RNSecureKeyStore.get('fcmToken');
+          let url = baseUrl + 'create'
+        try{
+          let response = await fetch(`${url}`,{
                                     method: 'POST',
                                     headers: {
                                        'Accept': 'application/json',
@@ -61,6 +67,9 @@ export default class RegisterPage extends Component{
         this.setState({errors: errors});
         alert(errors)
       }
+      }else {
+        alert("YOUR DEVICE IS ROOTED !!!")
+        }
     }
 
 
